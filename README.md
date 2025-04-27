@@ -1,18 +1,16 @@
 
 # API Vigia - Monitoramento Inteligente de APIs
 
-![API Vigia Logo](https://via.placeholder.com/600x200.png?text=API+Vigia)
-
 **Solução completa para monitoramento de APIs com relatórios detalhados e alertas em tempo real.**
 
-[![GitHub Stars](https://img.shields.io/github/stars/feharotech/api-vigia?style=social)](https://github.com/feharotech/api-vigia)  
-[![License](https://img.shields.io/github/license/feharotech/api-vigia)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/feharo-tech/api-vigia?style=social)](https://github.com/feharo-tech/api-vigia)  
+[![License](https://img.shields.io/github/license/feharo-tech/api-vigia)](LICENSE)
 
 ---
 
 ## 📌 Visão Geral
 
-O **API Vigia** é uma ferramenta open source desenvolvida pela **Feharo Tech** para monitoramento contínuo de APIs.  
+O **API Vigia** é uma ferramenta open source desenvolvida para monitoramento contínuo de APIs.  
 Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâneos sobre falhas e acessar relatórios detalhados de desempenho.
 
 > **Dê uma ⭐ no projeto para nos ajudar a continuar oferecendo soluções gratuitas de qualidade!**
@@ -72,7 +70,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 
 ```bash
 # Clone o repositório
-git clone https://github.com/feharotech/api-vigia.git
+git clone https://github.com/feharo-tech/api-vigia.git
 cd api-vigia
 
 # Instale as dependências PHP
@@ -110,12 +108,12 @@ Acesse: [http://localhost:8000](http://localhost:8000) e comece a monitorar suas
 ### Dashboard
 Dashboard com visão geral das APIs monitoradas:
 
-![Dashboard Screenshot](screenshots/screenshot1.png?text=Dashboard)
+![Dashboard Screenshot](screenshots/screenshot1.png)
 
 ### Detalhes da API
 Visualização detalhada de uma API específica:
 
-![Detalhes Screenshot](screenshots/screenshot2.png?text=Detalhes+da+API)
+![Detalhes Screenshot](screenshots/screenshot2.png)
 
 ---
 
