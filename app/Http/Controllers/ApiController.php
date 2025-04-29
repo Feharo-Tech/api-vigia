@@ -6,7 +6,6 @@ use App\Http\Requests\ApiStoreRequest;
 use App\Http\Requests\ApiUpdateRequest;
 use App\Models\Api;
 use App\Models\Tag;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 
@@ -16,16 +15,7 @@ class ApiController extends Controller
     
     public function index()
     {
-        $apis = Api::where(function($query) {
-            if (auth()->user()->is_admin) {
-                return;
-            }
-            $query->where('is_active', true);
-        })
-        ->with('latestStatusCheck')
-        ->get();
-
-        return view('apis.index', compact('apis'));
+        return view('apis.index');
     }
 
     public function create()
