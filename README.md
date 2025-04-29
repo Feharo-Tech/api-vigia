@@ -1,4 +1,4 @@
-# API Vigia - Monitoramento Inteligente de APIs
+# API Vigia InMediam - Monitoramento Inteligente de APIs
 
 **Solução completa para monitoramento de APIs com relatórios detalhados e alertas em tempo real.**
 
@@ -9,7 +9,7 @@
 
 ## 📌 Visão Geral
 
-O **API Vigia** é uma ferramenta open source desenvolvida para monitoramento contínuo de APIs.  
+O **API Vigia InMediam** é uma ferramenta open source desenvolvida para monitoramento contínuo de APIs.  
 Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâneos sobre falhas e acessar relatórios detalhados de desempenho.
 
 > **Dê uma ⭐ no projeto para nos ajudar a continuar oferecendo soluções gratuitas de qualidade!**

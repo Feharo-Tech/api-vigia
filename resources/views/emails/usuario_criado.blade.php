@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credenciais de acesso ao API Vigia</title>
+    <title>Credenciais de acesso ao API Vigia InMediam</title>
     <style>
         * {
             margin: 0;
@@ -92,7 +92,7 @@
 
 <body>
     <div class="alert-container">
-        <h1>Credenciais de acesso ao API Vigia</h1>
+        <h1>Credenciais de acesso ao API Vigia InMediam</h1>
 
         <div class="alert-details">
             <p><strong>E-mail:</strong> {{ $email }}</p>

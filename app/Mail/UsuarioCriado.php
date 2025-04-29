@@ -33,7 +33,7 @@ class UsuarioCriado extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->usuario.', Aqui estão suas credenciais de acesso ao API Vigia',
+            subject: $this->usuario.', Aqui estão suas credenciais de acesso ao API Vigia InMediam',
         );
     }
 
