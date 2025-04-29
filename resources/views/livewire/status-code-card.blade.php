@@ -3,7 +3,8 @@
         <div class="flex justify-between items-start">
             <h2 class="text-xl font-semibold text-gray-800 flex items-center">
                 <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
                 Códigos de Status
             </h2>
@@ -19,13 +20,13 @@
             @endif
         </div>
     </div>
-    
+
     @script
     <script>
-        (function() {     
+        (function () {
             const canvasId = 'statusCodeChart';
             const ctx = document.getElementById(canvasId);
-            
+
             if (!ctx) return;
 
             const statusData = @js($statusCodes);
@@ -39,8 +40,8 @@
             const data = filteredCodes.map(code => statusData[code]);
             const backgroundColors = filteredCodes.map(code => {
                 const firstDigit = code.toString()[0];
-                switch(firstDigit) {
-                    case '2': return '#10B981';
+                switch (firstDigit) {
+                    case '2': return '#22C55E';
                     case '3': return '#3B82F6';
                     case '4': return '#F59E0B';
                     case '5': return '#EF4444';
@@ -75,7 +76,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     const label = context.label || '';
                                     const value = context.raw || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);

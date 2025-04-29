@@ -44,7 +44,7 @@ class UptimeCard extends Component
 
     protected function getUptimeColor($percentage)
     {
-        return $percentage >= 99 ? '#10B981' : 
+        return $percentage >= 99 ? '#22C55E' : 
             ($percentage >= 95 ? '#F59E0B' : '#EF4444');
     }
 
