@@ -16,7 +16,15 @@ class ApiController extends Controller
     
     public function index()
     {
-        $apis = Auth::user()->apis()->with('latestStatusCheck')->get();
+        $apis = Api::where(function($query) {
+            if (auth()->user()->is_admin) {
+                return;
+            }
+            $query->where('is_active', true);
+        })
+        ->with('latestStatusCheck')
+        ->get();
+
         return view('apis.index', compact('apis'));
     }
 

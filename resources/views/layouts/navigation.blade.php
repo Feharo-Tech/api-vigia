@@ -34,6 +34,14 @@
                         </x-nav-link>
                     </div>
 
+                    @can('admin-access')
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                                {{ __('Usuários') }}
+                            </x-nav-link>
+                        </div>
+                    @endcan
+
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <x-nav-link :href="route('notification-settings.edit')" :active="request()->routeIs('notification-settings.edit')">
                             {{ __('Configurações') }}
@@ -106,6 +114,14 @@
                     {{ __('Tags') }}
                 </x-responsive-nav-link>
             </div>
+
+            @can('admin-access')
+                <div class="pt-2 pb-3 space-y-1">
+                    <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                        {{ __('Usuários') }}
+                    </x-responsive-nav-link>
+                </div>
+            @endcan
 
             <div class="pt-2 pb-3 space-y-1">
                 <x-responsive-nav-link :href="route('notification-settings.edit')" :active="request()->routeIs('notification-settings.edit')">

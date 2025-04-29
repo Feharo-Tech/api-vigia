@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -20,6 +19,8 @@ class AdminUserSeeder extends Seeder
                 'name' => env('ADMIN_NAME'),
                 'password' => Hash::make(env('ADMIN_PASSWORD')),
                 'email_verified_at' => now(),
+                'is_active' => true,
+                'is_admin' => true
             ]
         );
     }

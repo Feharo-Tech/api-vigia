@@ -6,10 +6,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\NotificationSettingController;
+use App\Http\Controllers\Admin\UserController;
+use \App\Http\Middleware\IsAdmin;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -27,6 +29,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::get('/notification-settings/edit', [NotificationSettingController::class, 'edit'])->name('notification-settings.edit');
     Route::put('/notification-settings', [NotificationSettingController::class, 'update'])->name('notification-settings.update');
+});
+
+
+Route::prefix('admin')->middleware(['auth', IsAdmin::class])->group(function () {
+    Route::resource('users', UserController::class)->except(['show'])->names('admin.users');
+    Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
 });
 
 Route::resource('tags', \App\Http\Controllers\TagController::class)->except(['show'])->middleware('auth');
