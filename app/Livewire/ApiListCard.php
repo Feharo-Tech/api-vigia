@@ -16,8 +16,12 @@ class ApiListCard extends Component
 
     public function loadData()
     {
-        $this->apis = auth()->user()
-            ->apis()
+        $this->apis = Api::where(function($query) {
+                if (auth()->user()->is_admin) {
+                    return;
+                }
+                $query->where('is_active', true);
+            })
             ->with('latestStatusCheck','tags')
             ->orderByDesc('id')
             ->get();
