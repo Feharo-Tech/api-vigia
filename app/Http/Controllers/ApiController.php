@@ -6,13 +6,9 @@ use App\Http\Requests\ApiStoreRequest;
 use App\Http\Requests\ApiUpdateRequest;
 use App\Models\Api;
 use App\Models\Tag;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 
 class ApiController extends Controller
-{
-    use AuthorizesRequests, ValidatesRequests;
-    
+{    
     public function index()
     {
         return view('apis.index');
@@ -47,8 +43,6 @@ class ApiController extends Controller
 
     public function show(Api $api)
     {
-        $this->authorize('view', $api);
-
         $statusChecks = $api->statusChecks()->latest()->paginate(10);
         $uptimeStats = $api->uptimeStats();
 
@@ -57,8 +51,6 @@ class ApiController extends Controller
 
     public function edit(Api $api)
     {
-        $this->authorize('update', $api);
-
         $api->formatJsonFields();
 
         return view('apis.edit', [
@@ -72,8 +64,6 @@ class ApiController extends Controller
 
     public function update(ApiUpdateRequest $request, Api $api)
     {
-        $this->authorize('update', $api);
-
         $api->updateFromRequest($request->validated());
 
         $api->tags()->sync($request->input('tags', []));
@@ -84,8 +74,6 @@ class ApiController extends Controller
 
     public function destroy(Api $api)
     {
-        $this->authorize('delete', $api);
-
         $api->delete();
 
         return redirect()->route('apis.index')
@@ -94,8 +82,6 @@ class ApiController extends Controller
 
     public function checkNow(Api $api)
     {
-        $this->authorize('view', $api);
-
         try {
             $status = $api->performStatusCheck();
             return back()->with('toast', [
@@ -114,14 +100,11 @@ class ApiController extends Controller
 
     public function statusHistory(Api $api)
     {
-        $this->authorize('view', $api);
         return response()->json($api->statusHistory());
     }
 
     public function reset(Api $api)
     {
-        $this->authorize('reset', $api);
-
         $api->statusChecks()->delete();
 
         return redirect()->route('apis.show', $api)
