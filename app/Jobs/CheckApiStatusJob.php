@@ -48,7 +48,7 @@ class CheckApiStatusJob implements ShouldQueue
                 'response_time' => $responseTime,
                 'success' => $success,
                 'response_body' => $success ? null : substr($response->body(), 0, 1000),
-                'error_message' => $success ? null : 'Status code or response content mismatch',
+                'error_message' => $success ? null : 'Incompatibilidade no código de status ou no corpo da resposta.',
             ]);
 
             $this->api->evaluateAndNotify($statusCheck, $responseTime);
