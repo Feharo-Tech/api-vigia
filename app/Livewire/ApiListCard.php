@@ -16,11 +16,10 @@ class ApiListCard extends Component
 
     public function loadData()
     {
-        $this->apis = auth()->user()
-            ->apis()
-            ->with('latestStatusCheck','tags')
-            ->orderByDesc('id')
-            ->get();
+        $this->apis = Api::visibleToUser(auth()->user())
+                            ->with('latestStatusCheck','tags')
+                            ->orderByDesc('id')
+                            ->get();
     }
 
     public function render()

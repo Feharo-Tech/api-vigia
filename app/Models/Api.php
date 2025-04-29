@@ -218,4 +218,13 @@ class Api extends Model
             );
         }
     }
+
+    public function scopeVisibleToUser($query, $user)
+    {
+        if ($user->is_admin) {
+            return $query;
+        }
+
+        return $query->where('is_active', true);
+    }
 }

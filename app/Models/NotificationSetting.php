@@ -30,10 +30,4 @@ class NotificationSetting extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    public function updateFromRequest(array $data)
-    {
-        $data['email_notifications'] = $data['email_notifications'] ?? false;
-        $this->update($data);
-    }
 }

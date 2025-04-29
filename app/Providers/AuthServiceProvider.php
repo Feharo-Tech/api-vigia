@@ -4,11 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Api;
-use App\Policies\ApiPolicy;
-use App\Models\NotificationSetting;
-use App\Policies\NotificationSettingPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -18,8 +13,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        Api::class => ApiPolicy::class,
-        NotificationSetting::class => NotificationSettingPolicy::class,
+        //
     ];
 
     /**

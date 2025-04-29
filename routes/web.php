@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\NotificationSettingController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\TagController;
 use \App\Http\Middleware\IsAdmin;
 
 Route::get('/', function () {
@@ -26,6 +27,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/apis/{api}/check-now', [ApiController::class, 'checkNow'])->name('apis.check-now');
     Route::get('/apis/{api}/status-history', [ApiController::class, 'statusHistory'])->name('apis.status-history');
     Route::post('/apis/{api}/reset', [ApiController::class, 'reset'])->name('apis.reset');
+
+    Route::resource('/tags', TagController::class)->except(['show']);
     
     Route::get('/notification-settings/edit', [NotificationSettingController::class, 'edit'])->name('notification-settings.edit');
     Route::put('/notification-settings', [NotificationSettingController::class, 'update'])->name('notification-settings.update');
@@ -33,10 +36,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
 Route::prefix('admin')->middleware(['auth', IsAdmin::class])->group(function () {
-    Route::resource('users', UserController::class)->except(['show'])->names('admin.users');
-    Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+    Route::resource('/users', UserController::class)->except(['show'])->names('admin.users');
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
 });
-
-Route::resource('tags', \App\Http\Controllers\TagController::class)->except(['show'])->middleware('auth');
 
 require __DIR__.'/auth.php';

@@ -49,7 +49,7 @@ class ResponseTimeCard extends Component
     {
         if (is_null($responseTime)) return '#9CA3AF';
         
-        return $responseTime <= 200 ? '#10B981' : 
+        return $responseTime <= 200 ? '#22C55E' : 
               ($responseTime <= 500 ? '#F59E0B' : 
               '#EF4444');                         
     }

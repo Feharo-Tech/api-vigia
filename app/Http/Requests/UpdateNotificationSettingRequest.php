@@ -30,6 +30,19 @@ class UpdateNotificationSettingRequest extends FormRequest
         ];
     }
 
+    public function messages()
+    {
+        return [
+            'email_notifications.accepted' => 'Você deve aceitar receber notificações por e-mail.',
+            'notification_email.email' => 'O campo de e-mail para notificações deve conter um endereço de e-mail válido.',
+            'notification_frequency.required' => 'A frequência de notificações é obrigatória.',
+            'notification_frequency.integer' => 'A frequência de notificações deve ser um número inteiro.',
+            'notification_frequency.min' => 'A frequência de notificações deve ser no mínimo :min.',
+            'notification_frequency.max' => 'A frequência de notificações não pode ser superior a :max.',
+        ];
+    }
+
+
     public function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(
