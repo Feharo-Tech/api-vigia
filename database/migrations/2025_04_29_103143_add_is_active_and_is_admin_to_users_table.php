@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_admin')->default(false);
+            $table->boolean('is_active')->default(true)->after('email_verified_at');
+            $table->boolean('is_admin')->default(false)->after('is_active');
         });
     }
 
