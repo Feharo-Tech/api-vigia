@@ -62,4 +62,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(NotificationSetting::class);
     }
+
+    public function visibleApis()
+    {
+        return $this->is_admin
+            ? Api::query()
+            : Api::where('is_active', true);
+    }
 }

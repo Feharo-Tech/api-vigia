@@ -22,7 +22,7 @@ class StatusHistoryCard extends Component
 
     public function loadData()
     {
-        $this->apis = Api::where('user_id', auth()->id())->get();
+        $this->apis = auth()->user()->visibleApis()->get();
         $this->historyData = $this->getHistoryData(24);
         $this->filteredData = $this->historyData;
     }
@@ -61,18 +61,22 @@ class StatusHistoryCard extends Component
         $now = now();
         $startTime = $now->copy()->subHours($hours);
         
-        $allChecks = ApiStatusCheck::whereIn('api_id', $user->apis->pluck('id'))
-            ->where('created_at', '>=', $startTime)
-            ->orderBy('created_at')
-            ->get()
-            ->groupBy(function($item) {
-                return $item->created_at->format('Y-m-d H:00');
-            });
+        $allChecks = ApiStatusCheck::whereIn(
+                            'api_id',
+                            $user->visibleApis()->pluck('id')
+                        )
+                        ->where('created_at', '>=', $startTime)
+                        ->orderBy('created_at')
+                        ->get()
+                        ->groupBy(function($item) {
+                            return $item->created_at->format('Y-m-d H:00');
+                        });
+
 
         $history['labels'] = array_keys($allChecks->toArray());
         sort($history['labels']);
 
-        foreach ($user->apis as $api) {
+        foreach ($this->apis as $api) {
             $apiData = [
                 'label' => $api->name,
                 'data' => [],

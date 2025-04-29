@@ -19,11 +19,13 @@ class StatusCodeCard extends Component
 
     public function loadData()
     {
-        $this->statusCodes = ApiStatusCheck::whereIn('api_id', Auth::user()->apis->pluck('id'))
+        $apiIds = Auth::user()->visibleApis()->pluck('id');
+
+        $this->statusCodes = ApiStatusCheck::whereIn('api_id', $apiIds)
             ->select('status_code', DB::raw('count(*) as count'))
             ->groupBy('status_code')
             ->get()
-            ->mapWithKeys(function($item) {
+            ->mapWithKeys(function ($item) {
                 return [$item->status_code => $item->count];
             })
             ->toArray();
