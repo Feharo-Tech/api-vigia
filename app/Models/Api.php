@@ -15,7 +15,7 @@ class Api extends Model
     protected $fillable = [
         'user_id', 'name', 'url', 'method', 'expected_response',
         'expected_status_code', 'check_interval', 'is_active', 'headers',
-        'body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify',
+        'body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify', 'content_type'
     ];
 
     protected $casts = [
@@ -44,7 +44,6 @@ class Api extends Model
         'application/xml' => 'XML',
         'application/octet-stream' => 'Binário',
     ];
-    
 
     public static function createFromRequest(array $data)
     {

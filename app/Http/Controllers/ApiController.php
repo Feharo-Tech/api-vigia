@@ -19,6 +19,7 @@ class ApiController extends Controller
         return view('apis.create', [
             'methods' => Api::HTTP_METHODS,
             'intervals' => Api::CHECK_INTERVALS,
+            'contentTypes' => Api::CONTENT_TYPE,
             'tags' => Tag::all(),
         ]);
     }
@@ -57,6 +58,7 @@ class ApiController extends Controller
             'api' => $api,
             'methods' => Api::HTTP_METHODS,
             'intervals' => Api::CHECK_INTERVALS,
+            'contentTypes' => Api::CONTENT_TYPE,
             'tags' => Tag::all(),
             'selectedTags' => $api->tags->pluck('id')->toArray()
         ]);
