@@ -1,4 +1,4 @@
-# API Vigia InMediam - Monitoramento Inteligente de APIs
+# API Vigia - Monitoramento Inteligente de APIs
 
 **Solução completa para monitoramento de APIs com relatórios detalhados e alertas em tempo real.**
 
@@ -9,7 +9,7 @@
 
 ## 📌 Visão Geral
 
-O **API Vigia InMediam** é uma ferramenta open source desenvolvida para monitoramento contínuo de APIs.  
+O **API Vigia** é uma ferramenta open source desenvolvida para monitoramento contínuo de APIs.  
 Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâneos sobre falhas e acessar relatórios detalhados de desempenho.
 
 > **Dê uma ⭐ no projeto para nos ajudar a continuar oferecendo soluções gratuitas de qualidade!**
@@ -54,7 +54,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 
 ## 🛠️ Tecnologias Utilizadas
 
--   **Backend:** Laravel 11
+-   **Backend:** Laravel 12
 -   **Frontend:** Livewire, Alpine.js, Tailwind CSS
 -   **Banco de Dados:** MySQL/PostgreSQL
 -   **Cache e Filas:** Redis (via Predis)
@@ -66,7 +66,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 
 ### Pré-requisitos
 
--   PHP 8.2+
+-   PHP 8.4
 -   Composer
 -   Node.js 20+
 -   Banco de dados (MySQL ou PostgreSQL)

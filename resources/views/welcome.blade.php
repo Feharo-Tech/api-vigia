@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>API Vigia InMediam - Monitoramento de APIs</title>
+    <title>API Vigia - Monitoramento de APIs</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
@@ -28,7 +28,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
-                <span class="ml-2 text-xl font-semibold">API Vigia InMediam</span>
+                <span class="ml-2 text-xl font-semibold">API Vigia</span>
             </div>
 
             @if (Route::has('login'))
@@ -137,7 +137,7 @@
     <footer class="py-6 px-6 lg:px-8 border-t border-gray-200 dark:border-gray-700">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center">
             <div class="text-sm text-gray-500 dark:text-gray-400 mb-4 md:mb-0">
-                © {{ date('Y') }} API Vigia InMediam. Todos os direitos reservados.
+                © {{ date('Y') }} API Vigia. Todos os direitos reservados.
                 <p>Desenvolvido por <a href="https://tech.feharo.com.br?ref=APIVigia" class="font-bold" target="_blank">
                         Feharo Tech </a> CNPJ: 55.196.325/0001-83 </p>
             </div>
