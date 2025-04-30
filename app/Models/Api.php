@@ -25,7 +25,7 @@ class Api extends Model
         'last_checked_at' => 'datetime',
     ];
 
-    public const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
+    public const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
 
     public const CHECK_INTERVALS = [
         1 => '1 minuto',
