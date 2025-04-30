@@ -54,7 +54,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 
 ## 🛠️ Tecnologias Utilizadas
 
--   **Backend:** Laravel 11
+-   **Backend:** Laravel 12
 -   **Frontend:** Livewire, Alpine.js, Tailwind CSS
 -   **Banco de Dados:** MySQL/PostgreSQL
 -   **Cache e Filas:** Redis (via Predis)
@@ -66,7 +66,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 
 ### Pré-requisitos
 
--   PHP 8.2+
+-   PHP 8.4
 -   Composer
 -   Node.js 20+
 -   Banco de dados (MySQL ou PostgreSQL)
