@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Api;
-use App\Jobs\CheckApiStatusJob;
 
 class CheckApiStatus extends Command
 {
@@ -19,10 +18,10 @@ class CheckApiStatus extends Command
             $this->info('Nenhuma API ativa para verificar');
             return;
         }
-        
+
         foreach ($apis as $api) {
             if ($this->shouldCheckApi($api)) {
-                CheckApiStatusJob::dispatch($api);
+                $api->performStatusCheck();
             }
         }
         

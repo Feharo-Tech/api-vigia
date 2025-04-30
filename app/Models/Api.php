@@ -15,7 +15,7 @@ class Api extends Model
     protected $fillable = [
         'user_id', 'name', 'url', 'method', 'expected_response',
         'expected_status_code', 'check_interval', 'is_active', 'headers',
-        'body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify',
+        'body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify', 'content_type'
     ];
 
     protected $casts = [
@@ -34,6 +34,15 @@ class Api extends Model
         15 => '15 minutos',
         30 => '30 minutos',
         60 => '1 hora',
+    ];
+
+    public const CONTENT_TYPE = [
+        'application/json' => 'JSON',
+        'application/x-www-form-urlencoded' => 'Formulário',
+        'text/plain' => 'Texto simples',
+        'multipart/form-data' => 'Multipart',
+        'application/xml' => 'XML',
+        'application/octet-stream' => 'Binário',
     ];
 
     public static function createFromRequest(array $data)
@@ -144,33 +153,76 @@ class Api extends Model
 
     public function performStatusCheck()
     {
-        $start = microtime(true);
+        try {
+            $start = microtime(true);
 
-        $response = Http::withHeaders(json_decode($this->headers, true)  ?? [])
-            ->timeout(10)
-            ->{$this->method}($this->url, json_decode($this->body, true)?? []);
+            $headers = json_decode($this->headers, true) ?? [];
+            $body = json_decode($this->body, true) ?? [];
+    
+            $request = Http::withHeaders($headers)->timeout(10);
+    
+            switch ($this->content_type) {
+                case 'application/json':
+                    $request = $request->asJson();
+                    break;
+                case 'application/x-www-form-urlencoded':
+                    $request = $request->asForm();
+                    break;
+                case 'multipart/form-data':
+                    $request = $request->asMultipart();
+                    break;
+                case 'text/plain':
+                case 'application/xml':
+                case 'application/octet-stream':
+                    $body = $this->body ?? '';
+                    break;
+                default:
+                    $body = $this->body ?? '';
+                    break;
+            }
+    
+            if (strtoupper($this->method) === 'OPTIONS') {
+                $response = $request->send('OPTIONS', $this->url);
+            } else {
+                $response = $request->{$this->method}($this->url, $body);
+            }
+    
+            $time = microtime(true) - $start;
+            $success = $response->status() === $this->expected_status_code;
+    
+            if ($this->expected_response) {
+                $success = $success && str_contains($response->body(), $this->expected_response);
+            }
+    
+            $statusCheck = $this->statusChecks()->create([
+                'status_code' => $response->status(),
+                'response_time' => $time,
+                'success' => $success,
+                'response_body' => $success ? null : substr($response->body(), 0, 1000),
+                'error_message' => $success ? null : 'Incompatibilidade no código de status ou no corpo da resposta.',
+            ]);
+    
+            $this->evaluateAndNotify($statusCheck, 0);
+    
+            return [
+                'success' => $success,
+                'message' => 'Verificação realizada: ' . ($success ? 'Online' : 'Offline'),
+            ];
 
-        $time = microtime(true) - $start;
-        $success = $response->status() === $this->expected_status_code;
-
-        if ($this->expected_response) {
-            $success = $success && str_contains($response->body(), $this->expected_response);
+        } catch (\Exception $e) {
+            $statusCheck = $this->api->statusChecks()->create([
+                'status_code' => 0,
+                'response_time' => 0,
+                'success' => false,
+                'response_body' => null,
+                'error_message' => $e->getMessage(),
+            ]);
+            
+            $this->evaluateAndNotify($statusCheck, 0);
         }
-
-        $statusCheck = $this->statusChecks()->create([
-            'status_code' => $response->status(),
-            'response_time' => $time,
-            'success' => $success,
-            'response_body' => $success ? null : substr($response->body(), 0, 1000),
-            'error_message' => $success ? null : 'Incompatibilidade no código de status ou no corpo da resposta.',
-        ]);
-
-        $this->evaluateAndNotify($statusCheck, 0);
-
-        return [
-            'success' => $success,
-            'message' => 'Verificação realizada: ' . ($success ? 'Online' : 'Offline'),
-        ];
+        finally {
+            Api::where('id', $this->id)->update(['last_checked_at' => now()]);
+        }
     }
 
     public function statusHistory()
@@ -226,5 +278,10 @@ class Api extends Model
         }
 
         return $query->where('is_active', true);
+    }
+
+    public function getContentTypeLabel(): string
+    {
+        return self::CONTENT_TYPE[$this->content_type] ?? 'Nenhum';
     }
 }
