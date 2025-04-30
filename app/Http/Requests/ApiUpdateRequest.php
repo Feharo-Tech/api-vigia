@@ -23,6 +23,7 @@ class ApiUpdateRequest extends ApiStoreRequest
             'expected_status_code' => 'required|integer|between:100,599',
             'expected_response' => 'nullable|string',
             'check_interval' => 'required|integer|min:1',
+            'content_type' => 'nullable|string|max:100',
             'is_active' => 'sometimes|accepted',
             'headers' => 'nullable|json',
             'body' => 'nullable|json',
