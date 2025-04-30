@@ -38,7 +38,8 @@
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             @foreach($methods as $method)
                                 <option value="{{ $method }}" {{ old('method', $api->method) == $method ? 'selected' : '' }}>
-                                    {{ $method }}</option>
+                                    {{ $method }}
+                                </option>
                             @endforeach
                         </select>
                         @error('method')
@@ -141,7 +142,7 @@
                 <div class="grid grid-cols-1 gap-4">
                     <div>
                         <label for="content_type" class="block text-sm font-medium text-gray-700">Content-Type</label>
-                        <select name="content_type" id="content_type" required
+                        <select name="content_type" id="content_type"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="" {{ old('content_type') == '' ? 'selected' : '' }}>Nenhum</option>
                             @foreach($contentTypes as $value => $label)

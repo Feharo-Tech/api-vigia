@@ -236,4 +236,9 @@ class Api extends Model
 
         return $query->where('is_active', true);
     }
+
+    public function getContentTypeLabel(): string
+    {
+        return self::CONTENT_TYPE[$this->content_type] ?? 'Nenhum';
+    }
 }
