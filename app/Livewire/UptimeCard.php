@@ -22,6 +22,7 @@ class UptimeCard extends Component
             ->with(['statusChecks' => function($query) {
                 $query->where('created_at', '>=', now()->subDays(30));
             }])
+            ->where('is_active', true)
             ->get()
             ->map(function($api) {
                 $totalChecks = $api->statusChecks->count();

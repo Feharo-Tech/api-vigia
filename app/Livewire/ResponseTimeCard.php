@@ -23,6 +23,7 @@ class ResponseTimeCard extends Component
                 $query->where('created_at', '>=', now()->subDays(30))
                       ->where('success', true);
             }])
+            ->where('is_active', true)
             ->get()
             ->map(function($api) {
                 $successfulChecks = $api->statusChecks;

@@ -22,7 +22,7 @@ class StatusHistoryCard extends Component
 
     public function loadData()
     {
-        $this->apis = auth()->user()->visibleApis()->get();
+        $this->apis = auth()->user()->visibleApis()->where('is_active', true)->get();
         $this->historyData = $this->getHistoryData(24);
         $this->filteredData = $this->historyData;
     }
