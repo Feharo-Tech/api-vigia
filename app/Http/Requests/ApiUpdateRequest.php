@@ -19,7 +19,7 @@ class ApiUpdateRequest extends ApiStoreRequest
         return [
             'name' => 'required|string|max:255',
             'url' => 'required|url',
-            'method' => 'required|in:GET,POST,PUT,PATCH,DELETE',
+            'method' => 'required|in:GET,POST,PUT,PATCH,DELETE,OPTIONS',
             'expected_status_code' => 'required|integer|between:100,599',
             'expected_response' => 'nullable|string',
             'check_interval' => 'required|integer|min:1',
