@@ -36,6 +36,16 @@ class Api extends Model
         60 => '1 hora',
     ];
 
+    public const CONTENT_TYPE = [
+        'application/json' => 'JSON',
+        'application/x-www-form-urlencoded' => 'Formulário',
+        'text/plain' => 'Texto simples',
+        'multipart/form-data' => 'Multipart',
+        'application/xml' => 'XML',
+        'application/octet-stream' => 'Binário',
+    ];
+    
+
     public static function createFromRequest(array $data)
     {
         $data['user_id'] = auth()->id();
