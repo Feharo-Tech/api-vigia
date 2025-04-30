@@ -64,6 +64,7 @@ class ErrorRateCard extends Component
         return Api::with(['statusChecks' => function($query) use ($since) {
                 $query->where('created_at', '>=', $since);
             }])
+            ->where('is_active', true)
             ->get()
             ->map(function($api) {
                 $totalChecks = $api->statusChecks->count();

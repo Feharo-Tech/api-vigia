@@ -19,7 +19,7 @@ class StatusCodeCard extends Component
 
     public function loadData()
     {
-        $apiIds = Auth::user()->visibleApis()->pluck('id');
+        $apiIds = Auth::user()->visibleApis()->where('is_active', true)->pluck('id');
 
         $this->statusCodes = ApiStatusCheck::whereIn('api_id', $apiIds)
             ->select('status_code', DB::raw('count(*) as count'))
