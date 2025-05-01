@@ -31,6 +31,7 @@ class ApiStoreRequest extends FormRequest
             'error_threshold' => 'nullable|integer|min:1',
             'timeout_threshold' => 'nullable|integer|min:1',
             'should_notify' => 'sometimes|accepted',
+            'certificate_id' => 'nullable|integer|min:1',
         ];
     }
 

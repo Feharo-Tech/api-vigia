@@ -38,16 +38,33 @@ class CertificateController extends Controller
     public function store(CertificateStoreRequest $request)
     {
         $file = $request->file('file');
-        $extension = $file->getClientOriginalExtension();
+        $type = strtolower($request->type);
         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $filename = Str::slug($originalName) . '-' . uniqid() . '.' . $extension;
+        $slugName = Str::slug($originalName);
+        $filename = $slugName . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $directory = 'certificates';
 
-        $path = $file->storeAs('certificates', $filename);
+        $relativePath = $file->storeAs($directory, $filename);
+
+        if ($type === 'pfx') {
+            $fullPath = Storage::disk('local')->path($relativePath);
+            $mergedPemRelative = $this->extractPemFromPfx($fullPath, $request->password, $slugName . '-' . uniqid(), $directory);
+
+            if (!$mergedPemRelative) {
+                return back()->withInput()->with('toast', [
+                    'type' => 'error',
+                    'message' => 'Erro ao extrair o certificado PEM do PFX.',
+                    'duration' => 5000,
+                ]);
+            }
+
+            $relativePath = $mergedPemRelative;
+        }
 
         Certificate::create([
             'name' => $request->name,
             'type' => strtolower($request->type),
-            'path' => $path,
+            'path' => $relativePath,
             'original_name' => $file->getClientOriginalName(),
             'password' => $request->password ? Crypt::encryptString($request->password) : null,
         ]);
@@ -83,17 +100,43 @@ class CertificateController extends Controller
      */
     public function update(CertificateUpdateRequest $request, Certificate $certificate)
     {
+        $type = strtolower($request->type);
+
         if ($request->hasFile('file')) {
             Storage::delete($certificate->path);
 
-            $certificate->path = $request->file('file')->store('certificates');
-            $certificate->original_name = $request->file('file')->getClientOriginalName();
+            $file = $request->file('file');
+            $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $slugName = Str::slug($originalName);
+            $filename = $slugName . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $directory = 'certificates';
+
+            $relativePath = $file->storeAs($directory, $filename);
+
+            if ($type === 'pfx') {
+                $fullPath = Storage::disk('local')->path($relativePath);
+                $mergedPemRelative = $this->extractPemFromPfx($fullPath, $request->password, $slugName . '-' . uniqid(), $directory);
+
+                if (!$mergedPemRelative) {
+                    return back()->withInput()->with('toast', [
+                        'type' => 'error',
+                        'message' => 'Erro ao extrair o certificado PEM do PFX.',
+                        'duration' => 5000,
+                    ]);
+                }
+
+                $relativePath = $mergedPemRelative;
+            }
+
+            $certificate->path = $relativePath;
+            $certificate->original_name = $file->getClientOriginalName();
         }
 
         $updateData = [
             'name' => $request->name,
             'type' => strtolower($request->type),
             'path' => $certificate->path,
+            'original_name' => $certificate->original_name,
         ];
 
         if ($request->filled('password')) {
@@ -122,5 +165,30 @@ class CertificateController extends Controller
             'message' => 'Certificado removido!',
             'duration' => 5000,
         ]);
+    }
+
+    private function extractPemFromPfx(string $pfxPath, string $password, string $baseFilename, string $directory): ?string
+    {
+        $storagePath = Storage::disk('local')->path($directory);
+
+        // Define os caminhos completos
+        $privateKeyPath = "$storagePath/{$baseFilename}_private.pem";
+        $publicCertPath = "$storagePath/{$baseFilename}_public.pem";
+        $mergedPemPath = "$storagePath/{$baseFilename}_full.pem";
+
+        // Extrai chave privada
+        $extractKeyCommand = "openssl pkcs12 -in $pfxPath -nocerts -nodes -passin pass:$password -out $privateKeyPath 2>&1";
+        shell_exec($extractKeyCommand);
+        if (!file_exists($privateKeyPath)) return null;
+
+        // Extrai certificado público
+        $extractCertCommand = "openssl pkcs12 -in $pfxPath -clcerts -nokeys -passin pass:$password -out $publicCertPath 2>&1";
+        shell_exec($extractCertCommand);
+        if (!file_exists($publicCertPath)) return null;
+
+        // Junta os dois arquivos em um .pem completo
+        file_put_contents($mergedPemPath, file_get_contents($privateKeyPath) . "\n" . file_get_contents($publicCertPath));
+
+        return Str::of($mergedPemPath)->after(Storage::disk('local')->path(''))->toString(); // caminho relativo
     }
 }

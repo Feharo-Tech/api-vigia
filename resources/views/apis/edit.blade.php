@@ -16,9 +16,6 @@
                     <input type="text" name="name" id="name" required
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         value="{{ old('name', $api->name) }}">
-                    @error('name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 <div>
@@ -26,9 +23,6 @@
                     <input type="url" name="url" id="url" required
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         placeholder="https://api.example.com/endpoint" value="{{ old('url', $api->url) }}">
-                    @error('url')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 <div class="grid grid-cols-3 gap-4">
@@ -42,9 +36,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('method')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
@@ -53,9 +44,6 @@
                         <input type="number" name="expected_status_code" id="expected_status_code" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             placeholder="200" value="{{ old('expected_status_code', $api->expected_status_code) }}">
-                        @error('expected_status_code')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
@@ -67,9 +55,6 @@
                                 <option value="{{ $value }}" {{ old('check_interval', $api->check_interval) == $value ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
-                        @error('check_interval')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 
@@ -82,9 +67,6 @@
                             <label for="is_active" class="ml-2 block text-sm font-medium text-gray-700">Monitoramento
                                 ativo</label>
                         </div>
-                        @error('is_active')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div class="flex items-end">
@@ -105,9 +87,6 @@
                         <input type="number" name="error_threshold" id="error_threshold" min="1" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             value="{{ old('error_threshold', $api->error_threshold) }}">
-                        @error('error_threshold')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <div>
@@ -116,9 +95,6 @@
                         <input type="number" name="timeout_threshold" id="timeout_threshold" min="1" required
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             value="{{ old('timeout_threshold', $api->timeout_threshold) }}">
-                        @error('timeout_threshold')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 
@@ -133,13 +109,10 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('tags')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="content_type" class="block text-sm font-medium text-gray-700">Content-Type</label>
                         <select name="content_type" id="content_type"
@@ -151,9 +124,20 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('content_type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="certificate_id" class="block text-sm font-medium text-gray-700">Certificado
+                            Digital</label>
+                        <select name="certificate_id" id="certificate_id"
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="" {{ old('certificate_id') == '' ? 'selected' : '' }}>Nenhum</option>
+                            @foreach($certificates as $certificate)
+                                <option value="{{ $certificate->id }}" {{ old('certificate_id', $api->certificate_id) == $certificate->id ? 'selected' : '' }}>
+                                    {{ $certificate->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
@@ -164,9 +148,6 @@
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ old('expected_response', $api->expected_response) }}</textarea>
                     <p class="mt-1 text-sm text-gray-500">Se preenchido, o sistema verificará se a resposta contém este
                         texto.</p>
-                    @error('expected_response')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 <div>
@@ -174,9 +155,6 @@
                     <textarea name="headers" id="headers" rows="3"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
                         placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'>{{ old('headers', is_array($api->headers) ? json_encode($api->headers, JSON_PRETTY_PRINT) : $api->headers) }}</textarea>
-                    @error('headers')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 <div>
@@ -184,9 +162,6 @@
                     <textarea name="body" id="body" rows="3"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
                         placeholder='{"param1": "value1", "param2": "value2"}'>{{ old('body', is_array($api->body) ? json_encode($api->body, JSON_PRETTY_PRINT) : $api->body) }}</textarea>
-                    @error('body')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 </div>
             </div>
 

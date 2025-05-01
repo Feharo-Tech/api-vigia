@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ApiStoreRequest;
 use App\Http\Requests\ApiUpdateRequest;
 use App\Models\Api;
+use App\Models\Certificate;
 use App\Models\Tag;
 
 class ApiController extends Controller
@@ -21,6 +22,7 @@ class ApiController extends Controller
             'intervals' => Api::CHECK_INTERVALS,
             'contentTypes' => Api::CONTENT_TYPE,
             'tags' => Tag::all(),
+            'certificates' => Certificate::all(),
         ]);
     }
 
@@ -60,7 +62,8 @@ class ApiController extends Controller
             'intervals' => Api::CHECK_INTERVALS,
             'contentTypes' => Api::CONTENT_TYPE,
             'tags' => Tag::all(),
-            'selectedTags' => $api->tags->pluck('id')->toArray()
+            'selectedTags' => $api->tags->pluck('id')->toArray(),
+            'certificates' => Certificate::all(),
         ]);
     }
 

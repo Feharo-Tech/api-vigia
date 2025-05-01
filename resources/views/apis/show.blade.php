@@ -91,26 +91,33 @@
                                 <div class="space-y-3">
                                     <div class="border-b pb-3">
                                         <p class="text-sm font-medium text-gray-500 mb-1">Content-Type</p>
-                                        <span class="px-2 py-1 text-xs font-semibold rounded ">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded">
                                             {{ $api->getContentTypeLabel() }}
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-3 md:grid-cols-3 gap-4">
                                 
                                 <div class="space-y-3">
                                     <div class="border-b pb-3">
                                         <p class="text-sm font-medium text-gray-500 mb-1">Timeout</p>
-                                        <p class="text-gray-800">{{ $api->timeout_threshold }} segundos</p>
+                                        <p class="px-2 py-1 text-xs font-semibold rounded">{{ $api->timeout_threshold }} segundos</p>
                                     </div>
                                 </div>
 
                                 <div class="space-y-3">
                                     <div class="border-b pb-3">
                                         <p class="text-sm font-medium text-gray-500 mb-1">Sensibilidade</p>
-                                        <p class="text-gray-800">Notifica após {{ $api->error_threshold }} falhas</p>
+                                        <p class="px-2 py-1 text-xs font-semibold rounded">{{ $api->error_threshold }} falhas</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <div class="border-b pb-3">
+                                        <p class="text-sm font-medium text-gray-500 mb-1">Certificado</p>
+                                        <p class="px-2 py-1 text-xs font-semibold rounded">{{ $api->getCertificateLabel() }}</p>
                                     </div>
                                 </div>
                             </div>
