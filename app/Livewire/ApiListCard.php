@@ -58,9 +58,9 @@ class ApiListCard extends Component
             $query->where('name', 'like', '%' . $this->search . '%');
         }
 
-        if ($this->statusFilter === 'ativo') {
+        if ($this->monitoringStatus === 'ativo') {
             $query->where('is_active', true);
-        } elseif ($this->statusFilter === 'inativo') {
+        } elseif ($this->monitoringStatus === 'inativo') {
             $query->where('is_active', false);
         }
 
@@ -70,11 +70,11 @@ class ApiListCard extends Component
             $query->where('should_notify', false);
         }
 
-        if ($this->monitoringStatus === 'ativo') {
+        if ($this->statusFilter === 'online') {
             $query->whereHas('latestStatusCheck', fn ($q) => $q->where('success', true));
-        } elseif ($this->monitoringStatus === 'inativo') {
+        } elseif ($this->statusFilter === 'offline') {
             $query->whereHas('latestStatusCheck', fn ($q) => $q->where('success', false));
-        } elseif ($this->monitoringStatus === 'nunca') {
+        } elseif ($this->statusFilter === 'nunca') {
             $query->whereDoesntHave('latestStatusCheck');
         }
 

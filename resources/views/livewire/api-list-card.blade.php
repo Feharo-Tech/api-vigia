@@ -6,22 +6,23 @@
         <select wire:model.lazy="monitoringStatus" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
             <option value="">Monitoramento</option>
             <option value="ativo">Ativo</option>
-            <option value="inativo">Desativado</option>
-            <option value="nunca">Nunca verificado</option>
+            <option value="inativo">Inativo</option>
+
         </select>
 
         <select wire:model.lazy="notifyFilter" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
             <option value="">Notificação</option>
             <option value="ativo">Ativo</option>
-            <option value="inativo">Desativado</option>
+            <option value="inativo">Inativo</option>
         </select>
-
 
         <select wire:model.lazy="statusFilter" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
             <option value="">Todos os status</option>
-            <option value="ativo">Ativo</option>
-            <option value="inativo">Inativo</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+            <option value="nunca">Nunca verificado</option>
         </select>
+
         <select wire:model.lazy="tagFilter" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm">
             <option value="">Todas as tags</option>
             @foreach ($allTags as $tag)
