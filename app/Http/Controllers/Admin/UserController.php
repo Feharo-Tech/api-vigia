@@ -105,4 +105,14 @@ class UserController extends Controller
             'duration' => 5000,
         ]);
     }
+
+    public function toggleAdmin(User $user)
+    {
+        $user->update(['is_admin' => !$user->is_admin]);
+        return redirect()->route('admin.users.index')->with('toast', [
+            'type' => 'success',
+            'message' => 'Nível administrador do usuário atualizado!',
+            'duration' => 5000,
+        ]);
+    }
 }
