@@ -64,6 +64,11 @@ class Api extends Model
         return $this->hasMany(ApiStatusCheck::class);
     }
 
+    public function certificate()
+    {
+        return $this->belongsTo(Certificate::class);
+    }
+
     public function latestStatusCheck()
     {
         return $this->hasOne(ApiStatusCheck::class)->latestOfMany();
