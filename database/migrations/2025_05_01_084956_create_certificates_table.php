@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->enum('type', ['pfx', 'pem']); 
             $table->string('path');
+            $table->string('original_name');
             $table->string('password')->nullable();
             $table->timestamps();
         });

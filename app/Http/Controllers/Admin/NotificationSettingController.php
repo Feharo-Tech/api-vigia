@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\NotificationSetting;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\UpdateNotificationSettingRequest;
@@ -13,7 +14,7 @@ class NotificationSettingController extends Controller
     {       
         $notificationSetting = Auth::user()->notificationSetting ?? new NotificationSetting();
         $frequencies = NotificationSetting::FREQUENCIES_INTERVALS;
-        return view('notification-settings.edit', compact('notificationSetting', 'frequencies'));
+        return view('admin.notification-settings.edit', compact('notificationSetting', 'frequencies'));
     }
 
     public function update(UpdateNotificationSettingRequest $request)

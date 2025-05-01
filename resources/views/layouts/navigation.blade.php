@@ -44,7 +44,15 @@
 
                     @can('admin-access')
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                            <x-nav-link :href="route('notification-settings.edit')" :active="request()->routeIs('notification-settings.edit')">
+                            <x-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
+                                {{ __('Certificados') }}
+                            </x-nav-link>
+                        </div>
+                    @endcan
+
+                    @can('admin-access')
+                        <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                            <x-nav-link :href="route('admin.notification-settings.edit')" :active="request()->routeIs('notification-settings.edit')">
                                 {{ __('Configurações') }}
                             </x-nav-link>
                         </div>
@@ -127,7 +135,15 @@
 
             @can('admin-access')
                 <div class="pt-2 pb-3 space-y-1">
-                    <x-responsive-nav-link :href="route('notification-settings.edit')" :active="request()->routeIs('notification-settings.edit')">
+                    <x-responsive-nav-link :href="route('admin.certificates.index')" :active="request()->routeIs('admin.certificates.*')">
+                        {{ __('Certificados') }}
+                    </x-responsive-nav-link>
+                </div>
+            @endcan
+
+            @can('admin-access')
+                <div class="pt-2 pb-3 space-y-1">
+                    <x-responsive-nav-link :href="route('admin.notification-settings.edit')" :active="request()->routeIs('admin.notification-settings.edit')">
                         {{ __('Configurações') }}
                     </x-responsive-nav-link>
                 </div>

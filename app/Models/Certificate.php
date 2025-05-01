@@ -10,12 +10,15 @@ class Certificate extends Model
         'name',
         'type',
         'path',
+        'original_name',
         'password',
     ];
 
     protected $hidden = [
         'password',
     ];
+
+    public const TYPES = ['PFX', 'PEM'];
 
     public function apis()
     {
