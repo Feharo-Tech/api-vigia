@@ -16,7 +16,7 @@ class Api extends Model
     protected $fillable = [
         'user_id', 'name', 'url', 'method', 'expected_response',
         'expected_status_code', 'check_interval', 'is_active', 'headers',
-        'body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify', 'content_type', 'certificate_id'
+        'body', 'raw_body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify', 'content_type', 'certificate_id'
     ];
 
     protected $casts = [
@@ -44,6 +44,8 @@ class Api extends Model
         'multipart/form-data' => 'Multipart',
         'application/xml' => 'XML',
         'application/octet-stream' => 'Binário',
+        'application/soap+xml' => 'SOAP XML',
+        'text/xml; charset=utf-8' => 'Texto XML',
     ];
 
     public static function createFromRequest(array $data)
@@ -162,52 +164,18 @@ class Api extends Model
         try {
             $start = microtime(true);
 
+            $contentType = strtolower($this->content_type);
             $headers = json_decode($this->headers, true) ?? [];
-            $body = json_decode($this->body, true) ?? [];
-    
+
             $request = Http::withHeaders($headers)->timeout(10);
 
-            if ($this->certificate) {
-                $certPath = storage_path("app/private/{$this->certificate->path}");
-            
-                if (!file_exists($certPath)) {
-                    throw new \Exception("Arquivo do certificado não encontrado: {$certPath}");
-                }
-            
-                $certPassword = $this->certificate->password ? Crypt::decryptString($this->certificate->password) : null;
-            
-                $request = $request->withOptions([
-                    'cert' => $this->certificate->type === 'pem'
-                        ? $certPath
-                        : [$certPath, $certPassword]
-                ]);
-            }
+            $body = $this->resolveRequestBody();
+
+            $request = $this->applyCertificateIfNeeded($request);
     
-            switch ($this->content_type) {
-                case 'application/json':
-                    $request = $request->asJson();
-                    break;
-                case 'application/x-www-form-urlencoded':
-                    $request = $request->asForm();
-                    break;
-                case 'multipart/form-data':
-                    $request = $request->asMultipart();
-                    break;
-                case 'text/plain':
-                case 'application/xml':
-                case 'application/octet-stream':
-                    $body = $this->body ?? '';
-                    break;
-                default:
-                    $body = $this->body ?? '';
-                    break;
-            }
+            $request = $this->applyContentTypeOptions($request);
     
-            if (strtoupper($this->method) === 'OPTIONS') {
-                $response = $request->send('OPTIONS', $this->url);
-            } else {
-                $response = $request->{$this->method}($this->url, $body);
-            }
+            $response = $this->sendRequest($request, $body, $contentType);
     
             $time = microtime(true) - $start;
             $success = $response->status() === $this->expected_status_code;
@@ -246,6 +214,71 @@ class Api extends Model
         finally {
             Api::where('id', $this->id)->update(['last_checked_at' => now()]);
         }
+    }
+
+    private function resolveRequestBody(): string|array
+    {
+        $contentType = strtolower($this->content_type);
+
+        if (str_contains($contentType, 'xml') || str_contains($contentType, 'soap')) {
+            return trim($this->raw_body ?? '');
+        }
+
+        return json_decode($this->body, true) ?? [];
+    }
+
+    private function applyCertificateIfNeeded($request)
+    {
+        if (!$this->certificate) {
+            return $request;
+        }
+
+        $certPath = storage_path("app/private/{$this->certificate->path}");
+
+        if (!file_exists($certPath)) {
+            throw new \Exception("Arquivo do certificado não encontrado: {$certPath}");
+        }
+
+        $certPassword = $this->certificate->password ? Crypt::decryptString($this->certificate->password) : null;
+
+        return $request->withOptions([
+            'cert' => $this->certificate->type === 'pem' ? $certPath : [$certPath, $certPassword]
+        ]);
+    }
+
+    private function applyContentTypeOptions($request)
+    {
+        $contentType = strtolower($this->content_type);
+
+        if (str_contains($contentType, 'xml') ||
+            str_contains($contentType, 'soap') ||
+            str_contains($contentType, 'text/plain') ||
+            str_contains($contentType, 'octet-stream')) {
+            return $request;
+        }
+
+        return match ($contentType) {
+            'application/json' => $request->asJson(),
+            'application/x-www-form-urlencoded' => $request->asForm(),
+            'multipart/form-data' => $request->asMultipart(),
+            default => $request,
+        };
+    }
+
+    private function sendRequest($request, $body, $contentType)
+    {
+        $method = strtoupper($this->method);
+
+        if ($method === 'OPTIONS') {
+            return $request->send('OPTIONS', $this->url);
+        }
+
+        if (str_contains($contentType, 'xml')) {
+            return $request->withBody(trim($body), $contentType)
+                        ->send($method, $this->url);
+        }
+
+        return $request->{$this->method}($this->url, $body);
     }
 
     public function statusHistory()

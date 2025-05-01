@@ -49,6 +49,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 -   Gestão de usuários
 -   Resetar estatísticas da API
 -   Verificar API na hora
+-   Suporte completo a requisições SOAP/XML
 
 ### 🔐 Suporte a Certificados Digitais (PEM e PFX)
 

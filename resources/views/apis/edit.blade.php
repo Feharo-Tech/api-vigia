@@ -6,7 +6,9 @@
     <div class="max-w-2xl mx-auto">
         <x-subpage-title>Editar API</x-subpage-title>
 
-        <form action="{{ route('apis.update', $api) }}" method="POST" class="bg-white rounded-lg shadow p-6">
+        <form action="{{ route('apis.update', $api) }}" method="POST" enctype="multipart/form-data"
+            class="bg-white rounded-lg shadow p-6"
+            x-data="{ contentType: '{{ old('content_type', $api->content_type) }}' }">
             @csrf
             @method('PUT')
 
@@ -115,11 +117,12 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="content_type" class="block text-sm font-medium text-gray-700">Content-Type</label>
-                        <select name="content_type" id="content_type"
+                        <select name="content_type" id="content_type" x-model="contentType"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <option value="" {{ old('content_type') == '' ? 'selected' : '' }}>Nenhum</option>
+                            <option value="" {{ old('content_type', $api->content_type) === '' ? 'selected' : '' }}>Nenhum
+                            </option>
                             @foreach($contentTypes as $value => $label)
-                                <option value="{{ $value }}" {{ old('content_type', $api->content_type) == $value ? 'selected' : '' }}>{{ $label }} -
+                                <option value="{{ $value }}" {{ old('content_type', $api->content_type) === $value ? 'selected' : '' }}>{{ $label }} -
                                     {{ $value }}
                                 </option>
                             @endforeach
@@ -157,11 +160,19 @@
                         placeholder='{"Authorization": "Bearer token", "Content-Type": "application/json"}'>{{ old('headers', is_array($api->headers) ? json_encode($api->headers, JSON_PRETTY_PRINT) : $api->headers) }}</textarea>
                 </div>
 
-                <div>
+                <div x-show="!contentType.toLowerCase().includes('xml')" x-cloak>
                     <label for="body" class="block text-sm font-medium text-gray-700">Body (opcional - JSON)</label>
                     <textarea name="body" id="body" rows="3"
                         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
                         placeholder='{"param1": "value1", "param2": "value2"}'>{{ old('body', is_array($api->body) ? json_encode($api->body, JSON_PRETTY_PRINT) : $api->body) }}</textarea>
+                </div>
+
+                <div x-show="contentType.toLowerCase().includes('xml')" x-cloak>
+                    <label for="raw_body" class="block text-sm font-medium text-gray-700">Body SOAP (opcional - XML)</label>
+                    <textarea name="raw_body" id="raw_body" rows="6"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
+                        placeholder="&lt;soap:Envelope&gt;...&lt;/soap:Envelope&gt;">{{ old('raw_body', $api->raw_body) }}</textarea>
+                    <p class="mt-1 text-sm text-gray-500">O body será enviado como XML diretamente.</p>
                 </div>
             </div>
 
