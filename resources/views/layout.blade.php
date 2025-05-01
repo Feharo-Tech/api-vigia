@@ -10,6 +10,11 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-100">

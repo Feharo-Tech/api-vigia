@@ -26,6 +26,7 @@ class ApiStoreRequest extends FormRequest
             'is_active' => 'sometimes|accepted',
             'headers' => 'nullable|json',
             'body' => 'nullable|json',
+            'raw_body' => 'nullable|string',
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'error_threshold' => 'nullable|integer|min:1',
