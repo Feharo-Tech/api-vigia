@@ -39,6 +39,7 @@ Route::prefix('admin')->middleware(['auth', IsAdmin::class])->group(function () 
 
     Route::resource('/users', UserController::class)->except(['show'])->names('admin.users');
     Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+    Route::patch('/users/{user}/toggle-admin', [UserController::class, 'toggleAdmin'])->name('admin.users.toggle-admin');
 
     Route::resource('/certificates', CertificateController::class)->names('admin.certificates');
 });

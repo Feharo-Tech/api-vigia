@@ -26,6 +26,8 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">E-mail</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Administrador
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                     </tr>
@@ -38,6 +40,16 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $user->email }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span
+                                    class="px-2 py-1 inline-flex text-xs font-semibold rounded-full {{ $user->is_admin ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                    @if($user->is_admin)
+                                        Sim
+                                    @else
+                                        Não
+                                    @endif
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <span
@@ -88,6 +100,25 @@
                                                 @else
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                         d="M12 15v2m-6-6v5a2 2 0 002 2h8a2 2 0 002-2v-5a2 2 0 00-2-2h-1m-6 0V7a3 3 0 016 0v3" />
+                                                @endif
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('admin.users.toggle-admin', $user) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                            class="p-1 rounded-full hover:bg-gray-100 {{ $user->is_admin ? 'text-yellow-500 hover:text-yellow-700' : 'text-blue-500 hover:text-blue-700' }}"
+                                            title="{{ $user->is_admin ? 'Remover administrador' : 'Adicionar administrador' }}"
+                                            onclick="return confirm('Tem certeza que deseja {{ $user->is_admin ? 'remover' : 'adicionar' }} este administrador?')">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor" stroke-width="2">
+                                                @if ($user->is_admin)
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                @else
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                                                 @endif
                                             </svg>
                                         </button>

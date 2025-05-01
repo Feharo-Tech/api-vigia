@@ -58,7 +58,7 @@
 
 
             <div class="mt-6 flex justify-end">
-                <a href="{{ route('tags.index') }}"
+                <a href="{{ route('admin.users.index') }}"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded mr-2">
                     Cancelar
                 </a>
