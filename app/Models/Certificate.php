@@ -13,6 +13,10 @@ class Certificate extends Model
         'password',
     ];
 
+    protected $hidden = [
+        'password',
+    ];
+
     public function apis()
     {
         return $this->hasMany(Api::class);
