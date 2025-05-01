@@ -50,6 +50,13 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 -   Resetar estatísticas da API
 -   Verificar API na hora
 
+### 🔐 Suporte a Certificados Digitais (PEM e PFX)
+
+-   Upload e gestão de certificados no formato `.pem` ou `.pfx`
+-   Extração automática de certificados PEM a partir de arquivos PFX
+-   Reutilização de certificados entre múltiplas APIs monitoradas
+-   Armazenamento seguro com criptografia de senha
+
 ---
 
 ## 🛠️ Tecnologias Utilizadas
@@ -72,6 +79,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 -   Banco de dados (MySQL ou PostgreSQL)
 -   Redis Server instalado e rodando
 -   Extensão PHP Redis ou biblioteca Predis
+-   OpenSSL instalado e acessível via terminal
 
 ### Instalação
 

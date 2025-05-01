@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use App\Services\ApiNotificationService;
+use Illuminate\Support\Facades\Crypt;
 
 
 class Api extends Model
@@ -15,7 +16,7 @@ class Api extends Model
     protected $fillable = [
         'user_id', 'name', 'url', 'method', 'expected_response',
         'expected_status_code', 'check_interval', 'is_active', 'headers',
-        'body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify', 'content_type'
+        'body', 'last_checked_at', 'error_threshold', 'timeout_threshold', 'should_notify', 'content_type', 'certificate_id'
     ];
 
     protected $casts = [
@@ -62,6 +63,11 @@ class Api extends Model
     public function statusChecks()
     {
         return $this->hasMany(ApiStatusCheck::class);
+    }
+
+    public function certificate()
+    {
+        return $this->belongsTo(Certificate::class);
     }
 
     public function latestStatusCheck()
@@ -160,6 +166,22 @@ class Api extends Model
             $body = json_decode($this->body, true) ?? [];
     
             $request = Http::withHeaders($headers)->timeout(10);
+
+            if ($this->certificate) {
+                $certPath = storage_path("app/private/{$this->certificate->path}");
+            
+                if (!file_exists($certPath)) {
+                    throw new \Exception("Arquivo do certificado não encontrado: {$certPath}");
+                }
+            
+                $certPassword = $this->certificate->password ? Crypt::decryptString($this->certificate->password) : null;
+            
+                $request = $request->withOptions([
+                    'cert' => $this->certificate->type === 'pem'
+                        ? $certPath
+                        : [$certPath, $certPassword]
+                ]);
+            }
     
             switch ($this->content_type) {
                 case 'application/json':
@@ -210,7 +232,8 @@ class Api extends Model
             ];
 
         } catch (\Exception $e) {
-            $statusCheck = $this->api->statusChecks()->create([
+
+            $statusCheck = $this->statusChecks()->create([
                 'status_code' => 0,
                 'response_time' => 0,
                 'success' => false,
@@ -283,5 +306,10 @@ class Api extends Model
     public function getContentTypeLabel(): string
     {
         return self::CONTENT_TYPE[$this->content_type] ?? 'Nenhum';
+    }
+
+    public function getCertificateLabel(): string
+    {
+        return $this->certificate->name ?? 'Nenhum';
     }
 }
