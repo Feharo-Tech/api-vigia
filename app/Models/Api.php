@@ -302,11 +302,18 @@ class Api extends Model
             return;
         }
 
-        $errorCount = $this->statusChecks()
+        $recentErrors = $this->statusChecks()
             ->where('success', false)
+            ->where('created_at', '>=', now()->subMinutes($this->check_interval * $this->error_threshold))
             ->orderByDesc('created_at')
             ->take($this->error_threshold)
-            ->count();
+            ->get();
+
+        $errorCount = $recentErrors->count();
+
+        if ($errorCount < $this->error_threshold) {
+            return;
+        }
 
         if ($errorCount >= $this->error_threshold) {
             ApiNotificationService::notify(
