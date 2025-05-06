@@ -8,6 +8,13 @@
                 </svg>
                 Códigos de Status
             </h2>
+
+            <select wire:model.live="selectedPeriod"
+                class="w-24 appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-1 px-2 pr-6 rounded-md text-xs focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                @foreach($availablePeriods as $value => $label)
+                    <option value="{{ $value }}">{{ $label }}</option>
+                @endforeach
+            </select>
         </div>
 
         <div class="h-64 mt-2">
@@ -24,69 +31,109 @@
     @script
     <script>
         (function () {
-            const canvasId = 'statusCodeChart';
-            const ctx = document.getElementById(canvasId);
+            let chart = null;
 
-            if (!ctx) return;
+            function initChart(statusData) {
+                const canvasId = 'statusCodeChart';
+                const ctx = document.getElementById(canvasId);
 
-            const statusData = @js($statusCodes);
-            const filteredCodes = Object.keys(statusData)
-                .filter(code => statusData[code] > 0)
-                .sort((a, b) => a - b);
+                if (!ctx) return;
 
-            if (filteredCodes.length === 0) return;
+                const filteredCodes = Object.keys(statusData)
+                    .filter(code => statusData[code].count > 0)
+                    .sort((a, b) => a - b);
 
-            const labels = filteredCodes.map(code => `HTTP ${code}`);
-            const data = filteredCodes.map(code => statusData[code]);
-            const backgroundColors = filteredCodes.map(code => {
-                const firstDigit = code.toString()[0];
-                switch (firstDigit) {
-                    case '2': return '#22C55E';
-                    case '3': return '#3B82F6';
-                    case '4': return '#F59E0B';
-                    case '5': return '#EF4444';
-                    default: return '#9CA3AF';
+                if (filteredCodes.length === 0) return;
+
+                const labels = filteredCodes.map(code => `HTTP ${code}`);
+                const data = filteredCodes.map(code => statusData[code].count);
+                const backgroundColors = filteredCodes.map(code => {
+                    const firstDigit = code.toString()[0];
+                    switch (firstDigit) {
+                        case '2': return '#22C55E';
+                        case '3': return '#3B82F6';
+                        case '4': return '#F59E0B';
+                        case '5': return '#EF4444';
+                        default: return '#9CA3AF';
+                    }
+                });
+
+                const fullData = filteredCodes.reduce((obj, code) => {
+                    obj[code] = statusData[code];
+                    return obj;
+                }, {});
+
+                if (chart) {
+                    chart.destroy();
                 }
-            });
 
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: backgroundColors,
-                        borderWidth: 1,
-                        borderColor: '#FFF'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 12,
-                                padding: 16,
-                                font: {
-                                    size: 12
+                chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            borderWidth: 1,
+                            borderColor: '#FFF'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    boxWidth: 12,
+                                    padding: 16,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    },
+                                    afterLabel: function (context) {
+                                        const statusCode = filteredCodes[context.dataIndex];
+                                        const statusInfo = fullData[statusCode];
+
+                                        if (!statusInfo || !statusInfo.apis) return '';
+
+                                        let tooltipText = '';
+                                        Object.entries(statusInfo.apis).forEach(([apiId, apiData]) => {
+                                            const lastOccurrence = new Date(apiData.last_occurrence).toLocaleString();
+                                            tooltipText += `\n• ${apiData.name}: ${apiData.count} vezes\n  (último: ${lastOccurrence})\n`;
+                                        });
+
+                                        return tooltipText;
+                                    }
                                 }
                             }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function (context) {
-                                    const label = context.label || '';
-                                    const value = context.raw || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    },
-                    cutout: '70%'
+                        cutout: '70%'
+                    }
+                });
+            }
+
+
+            const statusData = @js($statusCodes);
+            initChart(statusData);
+
+            Livewire.on('chart-updated', ({ statusData }) => {
+                initChart(statusData);
+            });
+
+            window.addEventListener('resize', function () {
+                if (chart) {
+                    chart.resize();
                 }
             });
         })();
