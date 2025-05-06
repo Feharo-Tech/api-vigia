@@ -3,10 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use App\Models\Api;
 use App\Models\ApiStatusCheck;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class StatusHistoryCard extends Component
 {
@@ -14,6 +11,19 @@ class StatusHistoryCard extends Component
     public $filteredData = [];
     public $apis = [];
     public $selectedApi = 'all';
+    
+    public $selectedPeriod = '24h';
+    public $availablePeriods = [
+        '1h' => '1 hora',
+        '3h' => '3 horas',
+        '12h' => '12 horas',
+        '24h' => '24 horas',
+        '1d' => '1 dia',
+        '3d' => '3 dias',
+        '7d' => '7 dias',
+        '15d' => '15 dias',
+        '30d' => '30 dias',
+    ];
 
     public function mount()
     {
@@ -23,12 +33,18 @@ class StatusHistoryCard extends Component
     public function loadData()
     {
         $this->apis = auth()->user()->visibleApis()->where('is_active', true)->get();
-        $this->historyData = $this->getHistoryData(24);
+        $this->historyData = $this->getHistoryData($this->getHoursFromPeriod());
         $this->filteredData = $this->historyData;
     }
 
     public function updatedSelectedApi()
     {
+        $this->applyFilter();
+    }
+    
+    public function updatedSelectedPeriod()
+    {
+        $this->loadData();
         $this->applyFilter();
     }
 
@@ -61,6 +77,8 @@ class StatusHistoryCard extends Component
         $now = now();
         $startTime = $now->copy()->subHours($hours);
         
+        $groupByFormat = $this->getGroupByFormat();
+        
         $allChecks = ApiStatusCheck::whereIn(
                             'api_id',
                             $user->visibleApis()->pluck('id')
@@ -68,10 +86,9 @@ class StatusHistoryCard extends Component
                         ->where('created_at', '>=', $startTime)
                         ->orderBy('created_at')
                         ->get()
-                        ->groupBy(function($item) {
-                            return $item->created_at->format('Y-m-d H:00');
+                        ->groupBy(function($item) use ($groupByFormat) {
+                            return $item->created_at->format($groupByFormat);
                         });
-
 
         $history['labels'] = array_keys($allChecks->toArray());
         sort($history['labels']);
@@ -94,8 +111,8 @@ class StatusHistoryCard extends Component
                 ->where('created_at', '>=', $startTime)
                 ->orderBy('created_at')
                 ->get()
-                ->groupBy(function($item) {
-                    return $item->created_at->format('Y-m-d H:00');
+                ->groupBy(function($item) use ($groupByFormat) {
+                    return $item->created_at->format($groupByFormat);
                 });
 
             foreach ($history['labels'] as $timeLabel) {
@@ -127,6 +144,32 @@ class StatusHistoryCard extends Component
         }
 
         return $history;
+    }
+    
+    protected function getHoursFromPeriod()
+    {
+        $period = $this->selectedPeriod;
+        
+        if (str_ends_with($period, 'h')) {
+            return (int) substr($period, 0, -1);
+        } elseif (str_ends_with($period, 'd')) {
+            return (int) substr($period, 0, -1) * 24;
+        }
+        
+        return 24;
+    }
+    
+    protected function getGroupByFormat()
+    {
+        $hours = $this->getHoursFromPeriod();
+        
+        if ($hours <= 24) {
+            return 'Y-m-d H:00';
+        } elseif ($hours <= 24 * 7) {
+            return 'Y-m-d 12:00';
+        } else {
+            return 'Y-m-d';
+        }
     }
 
     private function getRandomColor($seed) {
