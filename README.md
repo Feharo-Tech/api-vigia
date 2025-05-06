@@ -31,6 +31,8 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 -   Gráficos de disponibilidade histórica
 -   Uptime/downtime por período
 -   Tempo médio de resposta
+-   **Novo:** Filtros dinâmicos por período (1h, 3h, 12h, 24h, 3d, 7d, 15d, 30d)
+-   **Novo:** Detalhes das APIs que retornaram cada status code
 
 ### 🚨 Sistema de Alertas
 
@@ -42,6 +44,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 
 -   Histórico completo de verificações
 -   Métricas de desempenho
+-   **Novo:** Ordenação de dados por colunas (Data/Hora, Tempo de Resposta)
 
 ### 🔧 Outras Features
 
@@ -50,6 +53,8 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 -   Resetar estatísticas da API
 -   Verificar API na hora
 -   Suporte completo a requisições SOAP/XML
+-   **Novo:** Visualização expandida de respostas de erro
+-   **Novo:** Tabelas interativas com filtros, ordenação e paginação
 
 ### 🔐 Suporte a Certificados Digitais (PEM e PFX)
 
@@ -57,6 +62,12 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 -   Extração automática de certificados PEM a partir de arquivos PFX
 -   Reutilização de certificados entre múltiplas APIs monitoradas
 -   Armazenamento seguro com criptografia de senha
+
+### Experiência do Usuário Aprimorada
+
+-   Atualizações dinâmicas sem refresh da página
+-   Feedback visual durante filtragem e ordenação
+-   Tooltips informativos com detalhes adicionais
 
 ---
 
@@ -67,6 +78,7 @@ Com ele, você pode verificar a saúde de suas APIs, receber alertas instantâne
 -   **Banco de Dados:** MySQL/PostgreSQL
 -   **Cache e Filas:** Redis (via Predis)
 -   **Gráficos:** Chart.js
+-   **Componentes UI:** Tailwind UI, Headless UI
 
 ---
 
