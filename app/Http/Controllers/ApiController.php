@@ -46,10 +46,8 @@ class ApiController extends Controller
 
     public function show(Api $api)
     {
-        $statusChecks = $api->statusChecks()->latest()->paginate(10);
         $uptimeStats = $api->uptimeStats();
-
-        return view('apis.show', compact('api', 'statusChecks', 'uptimeStats'));
+        return view('apis.show', compact('api', 'uptimeStats'));
     }
 
     public function edit(Api $api)
