@@ -18,7 +18,6 @@ class StatusHistoryCard extends Component
         '3h' => '3 horas',
         '12h' => '12 horas',
         '24h' => '24 horas',
-        '1d' => '1 dia',
         '3d' => '3 dias',
         '7d' => '7 dias',
         '15d' => '15 dias',

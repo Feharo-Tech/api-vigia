@@ -10,7 +10,7 @@
             </h2>
 
             <div class="relative w-24">
-                <select wire:model.live="selectedPeriod" wire:change="loadData"
+                <select wire:model.live="selectedPeriod"
                     class="appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-1 px-2 pr-6 rounded-md text-xs focus:outline-none focus:ring-blue-500 focus:border-blue-500 w-full">
                     @foreach($availablePeriods as $value => $label)
                         <option value="{{ $value }}">{{ $label }}</option>
