@@ -9,12 +9,14 @@
                 Códigos de Status
             </h2>
 
-            <select wire:model.live="selectedPeriod"
-                class="w-24 appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-1 px-2 pr-6 rounded-md text-xs focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                @foreach($availablePeriods as $value => $label)
-                    <option value="{{ $value }}">{{ $label }}</option>
-                @endforeach
-            </select>
+            <div class="relative ml-4 w-24">
+                <select wire:model.live="selectedPeriod"
+                    class="w-24 appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-1 px-2 pr-6 rounded-md text-xs focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    @foreach($availablePeriods as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
 
         <div class="h-64 mt-2">
