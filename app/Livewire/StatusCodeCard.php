@@ -12,7 +12,7 @@ use Livewire\Attributes\On;
 class StatusCodeCard extends Component
 {
     public $statusCodes = [];
-    public $selectedPeriod = '30d';
+    public $selectedPeriod = '24h';
     public $availablePeriods = [
         '1h' => '1 hora',
         '3h' => '3 horas',

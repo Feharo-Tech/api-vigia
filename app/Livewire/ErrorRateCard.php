@@ -3,10 +3,8 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use Livewire\Attributes\On;
 use App\Models\Api;
 use App\Models\ApiStatusCheck;
-use Carbon\Carbon;
 
 class ErrorRateCard extends Component
 {

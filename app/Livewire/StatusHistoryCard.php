@@ -67,81 +67,67 @@ class StatusHistoryCard extends Component
 
     protected function getHistoryData($hours = 24)
     {
+        $startTime = now()->subHours($hours);
+        $groupByFormat = $this->getGroupByFormat();
         $user = auth()->user();
+        
+        $timeLabels = ApiStatusCheck::query()
+            ->selectRaw('DISTINCT DATE_FORMAT(created_at, ?) as time_label', 
+                    [$this->convertToDateFormat($groupByFormat)])
+            ->where('created_at', '>=', $startTime)
+            ->orderBy('time_label')
+            ->pluck('time_label');
+        
+        $apiMetrics = ApiStatusCheck::query()
+            ->selectRaw('
+                api_id,
+                apis.name as api_name,
+                DATE_FORMAT(api_status_checks.created_at, ?) as time_group,
+                COUNT(*) as total_checks,
+                SUM(success) as successful_checks
+            ', [$this->convertToDateFormat($groupByFormat)])
+            ->join('apis', 'apis.id', '=', 'api_status_checks.api_id')
+            ->whereIn('api_id', $user->visibleApis()->pluck('id'))
+            ->where('api_status_checks.created_at', '>=', $startTime)
+            ->groupBy('api_id', 'time_group', 'apis.name')
+            ->orderBy('time_group')
+            ->get()
+            ->groupBy(['api_id', 'time_group']);
+        
         $history = [
-            'labels' => [],
+            'labels' => $timeLabels->toArray(),
             'datasets' => []
         ];
         
-        $now = now();
-        $startTime = $now->copy()->subHours($hours);
-        
-        $groupByFormat = $this->getGroupByFormat();
-        
-        $allChecks = ApiStatusCheck::whereIn(
-                            'api_id',
-                            $user->visibleApis()->pluck('id')
-                        )
-                        ->where('created_at', '>=', $startTime)
-                        ->orderBy('created_at')
-                        ->get()
-                        ->groupBy(function($item) use ($groupByFormat) {
-                            return $item->created_at->format($groupByFormat);
-                        });
-
-        $history['labels'] = array_keys($allChecks->toArray());
-        sort($history['labels']);
-
-        foreach ($this->apis as $api) {
+        foreach ($user->visibleApis()->get() as $api) {
             $apiData = [
                 'label' => $api->name,
-                'data' => [],
+                'data' => array_fill(0, count($timeLabels), null),
                 'borderColor' => $this->getRandomColor($api->id),
-                'backgroundColor' => 'rgba(0, 0, 0, 0.05)',
-                'tension' => 0.3,
-                'borderWidth' => 2,
-                'pointRadius' => 3,
-                'pointHoverRadius' => 5,
                 'apiId' => $api->id,
-                'meta' => []
+                'meta' => array_fill(0, count($timeLabels), ['checks' => 0, 'success' => 0])
             ];
-
-            $apiChecks = ApiStatusCheck::where('api_id', $api->id)
-                ->where('created_at', '>=', $startTime)
-                ->orderBy('created_at')
-                ->get()
-                ->groupBy(function($item) use ($groupByFormat) {
-                    return $item->created_at->format($groupByFormat);
-                });
-
-            foreach ($history['labels'] as $timeLabel) {
-                $hourKey = $timeLabel;
-                
-                if (isset($apiChecks[$hourKey])) {
-                    $hourChecks = $apiChecks[$hourKey];
-                    $total = $hourChecks->count();
-                    $success = $hourChecks->where('success', true)->count();
-                    $availability = $total > 0 ? round(($success / $total) * 100, 2) : 0;
-                    
-                    $apiData['data'][] = $availability;
-                    $apiData['meta'][] = [
-                        'checks' => $total,
-                        'success' => $success,
-                        'time' => $hourKey
-                    ];
-                } else {
-                    $apiData['data'][] = null;
-                    $apiData['meta'][] = [
-                        'checks' => 0,
-                        'success' => 0,
-                        'time' => $hourKey
-                    ];
+            
+            if (isset($apiMetrics[$api->id])) {
+                foreach ($apiMetrics[$api->id] as $timeGroup => $metrics) {
+                    $index = array_search($timeGroup, $history['labels']);
+                    if ($index !== false) {
+                        $availability = $metrics->total_checks > 0 
+                            ? round(($metrics->successful_checks / $metrics->total_checks) * 100, 2)
+                            : 0;
+                        
+                        $apiData['data'][$index] = $availability;
+                        $apiData['meta'][$index] = [
+                            'checks' => $metrics->total_checks,
+                            'success' => $metrics->successful_checks
+                        ];
+                    }
                 }
             }
-
+            
             $history['datasets'][] = $apiData;
         }
-
+        
         return $history;
     }
     
