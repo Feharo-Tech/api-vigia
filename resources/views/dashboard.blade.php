@@ -14,12 +14,12 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-        <livewire:uptime-card />
+        {{-- <livewire:uptime-card /> --}}
         <livewire:response-time-card />
         <livewire:error-rate-card />
         <livewire:status-code-card />
 
-        {{-- <livewire:status-history-card /> --}}
+        <livewire:status-history-card />
     </div>
 
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
