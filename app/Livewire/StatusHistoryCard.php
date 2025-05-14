@@ -164,10 +164,10 @@ class StatusHistoryCard extends Component
     protected function convertToDateFormat($groupByFormat)
     {
         return match($groupByFormat) {
-            'Y-m-d H:00' => '%Y-%m-%d %H:00',
-            'Y-m-d 12:00' => '%Y-%m-%d 12:00',
-            'Y-m-d' => '%Y-%m-%d',
-            default => '%Y-%m-%d %H:00'
+            'Y-m-d H:00' => 'YYYY-MM-DD HH24:00',
+            'Y-m-d 12:00' => 'YYYY-MM-DD HH12:00',
+            'Y-m-d' => 'YYYY-MM-DD',
+            default => 'YYYY-MM-DD HH24:00'
         };
     }
 
