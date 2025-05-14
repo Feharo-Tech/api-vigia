@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\ApiStatusCheck;
+use Illuminate\Support\Facades\DB;
 
 class StatusHistoryCard extends Component
 {
@@ -69,65 +70,68 @@ class StatusHistoryCard extends Component
     {
         $startTime = now()->subHours($hours);
         $groupByFormat = $this->getGroupByFormat();
+        $dateFormat = $this->convertToDateFormat($groupByFormat);
         $user = auth()->user();
+        $visibleApiIds = $user->visibleApis()->pluck('id');
         
-        $timeLabels = ApiStatusCheck::query()
-            ->selectRaw('DISTINCT DATE_FORMAT(created_at, ?) as time_label', 
-                    [$this->convertToDateFormat($groupByFormat)])
+        if ($visibleApiIds->isEmpty()) {
+            return [
+                'labels' => [],
+                'datasets' => []
+            ];
+        }
+
+        $results = DB::table('api_status_checks')
+            ->select([
+                DB::raw("to_char(created_at, '{$dateFormat}') as time_group"),
+                'api_id',
+                DB::raw('COUNT(*) as total_checks'),
+                DB::raw('SUM(CASE WHEN success THEN 1 ELSE 0 END) as successful_checks')
+            ])
+            ->whereIn('api_id', $visibleApiIds)
             ->where('created_at', '>=', $startTime)
-            ->orderBy('time_label')
-            ->pluck('time_label');
-        
-        $apiMetrics = ApiStatusCheck::query()
-            ->selectRaw('
-                api_id,
-                apis.name as api_name,
-                DATE_FORMAT(api_status_checks.created_at, ?) as time_group,
-                COUNT(*) as total_checks,
-                SUM(success) as successful_checks
-            ', [$this->convertToDateFormat($groupByFormat)])
-            ->join('apis', 'apis.id', '=', 'api_status_checks.api_id')
-            ->whereIn('api_id', $user->visibleApis()->pluck('id'))
-            ->where('api_status_checks.created_at', '>=', $startTime)
-            ->groupBy('api_id', 'time_group', 'apis.name')
+            ->groupBy('time_group', 'api_id')
             ->orderBy('time_group')
-            ->get()
-            ->groupBy(['api_id', 'time_group']);
+            ->get();
+
+        $timeLabels = $results->pluck('time_group')->unique()->sort()->values();
+        
+        $apis = $user->visibleApis()->get(['id', 'name']);
         
         $history = [
             'labels' => $timeLabels->toArray(),
             'datasets' => []
         ];
-        
-        foreach ($user->visibleApis()->get() as $api) {
+
+        foreach ($apis as $api) {
             $apiData = [
                 'label' => $api->name,
-                'data' => array_fill(0, count($timeLabels), null),
+                'data' => array_fill(0, $timeLabels->count(), null),
                 'borderColor' => $this->getRandomColor($api->id),
                 'apiId' => $api->id,
-                'meta' => array_fill(0, count($timeLabels), ['checks' => 0, 'success' => 0])
+                'meta' => array_fill(0, $timeLabels->count(), ['checks' => 0, 'success' => 0])
             ];
+
+            $apiResults = $results->where('api_id', $api->id);
             
-            if (isset($apiMetrics[$api->id])) {
-                foreach ($apiMetrics[$api->id] as $timeGroup => $metrics) {
-                    $index = array_search($timeGroup, $history['labels']);
-                    if ($index !== false) {
-                        $availability = $metrics->total_checks > 0 
-                            ? round(($metrics->successful_checks / $metrics->total_checks) * 100, 2)
-                            : 0;
-                        
-                        $apiData['data'][$index] = $availability;
-                        $apiData['meta'][$index] = [
-                            'checks' => $metrics->total_checks,
-                            'success' => $metrics->successful_checks
-                        ];
-                    }
+            foreach ($apiResults as $result) {
+                $index = array_search($result->time_group, $history['labels']);
+                if ($index !== false) {
+                    $availability = $result->total_checks > 0 
+                        ? round(($result->successful_checks / $result->total_checks) * 100, 2)
+                        : 0;
+                    
+                    $apiData['data'][$index] = $availability;
+                    $apiData['meta'][$index] = [
+                        'checks' => $result->total_checks,
+                        'success' => $result->successful_checks
+                    ];
                 }
             }
-            
+
             $history['datasets'][] = $apiData;
         }
-        
+
         return $history;
     }
     
