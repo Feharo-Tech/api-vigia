@@ -33,8 +33,8 @@ class ErrorRateCard extends Component
                 'apis' => $this->getErrorDetailsByApi(now()->subWeek())
             ],
             'last_month' => [
-                'rate' => $this->calculateErrorRate(now()->subMonth()),
-                'apis' => $this->getErrorDetailsByApi(now()->subMonth())
+                'rate' => [],
+                'apis' => []
             ]
         ];
     }
