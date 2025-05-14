@@ -157,6 +157,16 @@ class StatusHistoryCard extends Component
         }
     }
 
+    protected function convertToDateFormat($groupByFormat)
+    {
+        return match($groupByFormat) {
+            'Y-m-d H:00' => '%Y-%m-%d %H:00',
+            'Y-m-d 12:00' => '%Y-%m-%d 12:00',
+            'Y-m-d' => '%Y-%m-%d',
+            default => '%Y-%m-%d %H:00'
+        };
+    }
+
     private function getRandomColor($seed) {
         $goldenRatio = 0.618033988749895;
         $h = fmod($seed * $goldenRatio, 1);
