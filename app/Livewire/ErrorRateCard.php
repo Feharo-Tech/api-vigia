@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use App\Models\Api;
 use App\Models\ApiStatusCheck;
+use Illuminate\Support\Facades\DB;
 
 class ErrorRateCard extends Component
 {
@@ -21,67 +22,62 @@ class ErrorRateCard extends Component
         $this->loadData();
     }
 
-    public function loadData()
-    {
-        $this->errorData = [
-            'last_24h' => [
-                'rate' => $this->calculateErrorRate(now()->subDay()),
-                'apis' => $this->getErrorDetailsByApi(now()->subDay())
-            ],
-            'last_week' => [
-                'rate' => $this->calculateErrorRate(now()->subWeek()),
-                'apis' => $this->getErrorDetailsByApi(now()->subWeek())
-            ],
-            'last_month' => [
-                'rate' => $this->calculateErrorRate(now()->subMonth()),
-                'apis' => $this->getErrorDetailsByApi(now()->subMonth())
-            ]
-        ];
-    }
-
     public function changeTab($tab)
     {
         $this->activeTab = $tab;
     }
 
-    protected function calculateErrorRate($since)
+    public function loadData()
     {
-        $checks = ApiStatusCheck::whereIn('api_id', auth()->user()->apis->pluck('id'))
-            ->where('created_at', '>=', $since)
-            ->get();
-
-        if ($checks->isEmpty()) return 0;
-
-        $errorRate = ($checks->where('success', false)->count() / $checks->count()) * 100;
-        
-        return $errorRate < 0.01 && $errorRate > 0 ? 0.01 : round($errorRate, 2);
+        $this->errorData = [
+            'last_24h' => $this->getErrorStats(now()->subDay()),
+            'last_week' => $this->getErrorStats(now()->subWeek()),
+            'last_month' => $this->getErrorStats(now()->subMonth())
+        ];
     }
 
-    protected function getErrorDetailsByApi($since)
+    protected function getErrorStats($since)
     {
-        return Api::with(['statusChecks' => function($query) use ($since) {
-                $query->where('created_at', '>=', $since);
-            }])
+        $totalStats = ApiStatusCheck::whereIn('api_id', auth()->user()->apis->pluck('id'))
+            ->where('created_at', '>=', $since)
+            ->select(
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as errors')
+            )
+            ->first();
+        
+        $rate = $totalStats->total > 0 
+            ? round(($totalStats->errors / $totalStats->total) * 100, 2)
+            : 0;
+
+        $apiDetails = Api::query()
             ->where('is_active', true)
+            ->whereHas('statusChecks', fn($q) => $q->where('created_at', '>=', $since))
+            ->withCount([
+                'statusChecks as total_checks' => fn($q) => $q->where('created_at', '>=', $since),
+                'statusChecks as error_checks' => fn($q) => $q->where('created_at', '>=', $since)
+                                                             ->where('success', false)
+            ])
             ->get()
             ->map(function($api) {
-                $totalChecks = $api->statusChecks->count();
-                $errorChecks = $api->statusChecks->where('success', false)->count();
-                
                 return [
                     'id' => $api->id,
                     'name' => $api->name,
-                    'error_rate' => $totalChecks > 0 
-                        ? round(($errorChecks / $totalChecks) * 100, 1)
+                    'error_rate' => $api->total_checks > 0 
+                        ? round(($api->error_checks / $api->total_checks) * 100, 1)
                         : 0,
-                    'error_count' => $errorChecks,
-                    'total_checks' => $totalChecks
+                    'error_count' => $api->error_checks,
+                    'total_checks' => $api->total_checks
                 ];
             })
-            ->filter(fn($api) => $api['total_checks'] > 0)
             ->sortByDesc('error_count')
             ->values()
             ->toArray();
+
+        return [
+            'rate' => $rate < 0.01 && $rate > 0 ? 0.01 : $rate,
+            'apis' => $apiDetails
+        ];
     }
 
     public function render()
