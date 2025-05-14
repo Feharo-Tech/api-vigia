@@ -90,7 +90,7 @@ class UptimeCard extends Component
             '7d' => ['start' => $now->subDays(7)],
             '15d' => ['start' => $now->subDays(15)],
             '30d' => ['start' => $now->subDays(30)],
-            default => ['start' => $now->subDays(30)],
+            default => ['start' => $now->subHours(24)],
         };
     }
 

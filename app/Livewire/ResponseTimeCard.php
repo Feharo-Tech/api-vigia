@@ -77,12 +77,11 @@ class ResponseTimeCard extends Component
             '3h' => ['start' => $now->subHours(3)],
             '12h' => ['start' => $now->subHours(12)],
             '24h' => ['start' => $now->subHours(24)],
-            '1d' => ['start' => $now->subDay()->startOfDay(), 'end' => $now->endOfDay()],
             '3d' => ['start' => $now->subDays(3)],
             '7d' => ['start' => $now->subDays(7)],
             '15d' => ['start' => $now->subDays(15)],
             '30d' => ['start' => $now->subDays(30)],
-            default => ['start' => $now->subDays(30)],
+            default => ['start' => $now->subHours(24)],
         };
     }
 
