@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\ApiStatusCheck;
+use Illuminate\Support\Facades\DB;
 
 class StatusHistoryCard extends Component
 {
@@ -67,74 +68,63 @@ class StatusHistoryCard extends Component
 
     protected function getHistoryData($hours = 24)
     {
+        $startTime = now()->subHours($hours);
+        $groupByFormat = $this->getGroupByFormat();
+        $dateFormat = $this->convertToDateFormat($groupByFormat);
         $user = auth()->user();
+        $visibleApiIds = $user->visibleApis()->pluck('id');
+        
+        if ($visibleApiIds->isEmpty()) {
+            return [
+                'labels' => [],
+                'datasets' => []
+            ];
+        }
+
+        $results = DB::table('api_status_checks')
+            ->select([
+                DB::raw("to_char(created_at, '{$dateFormat}') as time_group"),
+                'api_id',
+                DB::raw('COUNT(*) as total_checks'),
+                DB::raw('SUM(CASE WHEN success THEN 1 ELSE 0 END) as successful_checks')
+            ])
+            ->whereIn('api_id', $visibleApiIds)
+            ->where('created_at', '>=', $startTime)
+            ->groupBy('time_group', 'api_id')
+            ->orderBy('time_group')
+            ->get();
+
+        $timeLabels = $results->pluck('time_group')->unique()->sort()->values();
+        
+        $apis = $user->visibleApis()->get(['id', 'name']);
+        
         $history = [
-            'labels' => [],
+            'labels' => $timeLabels->toArray(),
             'datasets' => []
         ];
-        
-        $now = now();
-        $startTime = $now->copy()->subHours($hours);
-        
-        $groupByFormat = $this->getGroupByFormat();
-        
-        $allChecks = ApiStatusCheck::whereIn(
-                            'api_id',
-                            $user->visibleApis()->pluck('id')
-                        )
-                        ->where('created_at', '>=', $startTime)
-                        ->orderBy('created_at')
-                        ->get()
-                        ->groupBy(function($item) use ($groupByFormat) {
-                            return $item->created_at->format($groupByFormat);
-                        });
 
-        $history['labels'] = array_keys($allChecks->toArray());
-        sort($history['labels']);
-
-        foreach ($this->apis as $api) {
+        foreach ($apis as $api) {
             $apiData = [
                 'label' => $api->name,
-                'data' => [],
+                'data' => array_fill(0, $timeLabels->count(), null),
                 'borderColor' => $this->getRandomColor($api->id),
-                'backgroundColor' => 'rgba(0, 0, 0, 0.05)',
-                'tension' => 0.3,
-                'borderWidth' => 2,
-                'pointRadius' => 3,
-                'pointHoverRadius' => 5,
                 'apiId' => $api->id,
-                'meta' => []
+                'meta' => array_fill(0, $timeLabels->count(), ['checks' => 0, 'success' => 0])
             ];
 
-            $apiChecks = ApiStatusCheck::where('api_id', $api->id)
-                ->where('created_at', '>=', $startTime)
-                ->orderBy('created_at')
-                ->get()
-                ->groupBy(function($item) use ($groupByFormat) {
-                    return $item->created_at->format($groupByFormat);
-                });
-
-            foreach ($history['labels'] as $timeLabel) {
-                $hourKey = $timeLabel;
-                
-                if (isset($apiChecks[$hourKey])) {
-                    $hourChecks = $apiChecks[$hourKey];
-                    $total = $hourChecks->count();
-                    $success = $hourChecks->where('success', true)->count();
-                    $availability = $total > 0 ? round(($success / $total) * 100, 2) : 0;
+            $apiResults = $results->where('api_id', $api->id);
+            
+            foreach ($apiResults as $result) {
+                $index = array_search($result->time_group, $history['labels']);
+                if ($index !== false) {
+                    $availability = $result->total_checks > 0 
+                        ? round(($result->successful_checks / $result->total_checks) * 100, 2)
+                        : 0;
                     
-                    $apiData['data'][] = $availability;
-                    $apiData['meta'][] = [
-                        'checks' => $total,
-                        'success' => $success,
-                        'time' => $hourKey
-                    ];
-                } else {
-                    $apiData['data'][] = null;
-                    $apiData['meta'][] = [
-                        'checks' => 0,
-                        'success' => 0,
-                        'time' => $hourKey
+                    $apiData['data'][$index] = $availability;
+                    $apiData['meta'][$index] = [
+                        'checks' => $result->total_checks,
+                        'success' => $result->successful_checks
                     ];
                 }
             }
@@ -169,6 +159,16 @@ class StatusHistoryCard extends Component
         } else {
             return 'Y-m-d';
         }
+    }
+
+    protected function convertToDateFormat($groupByFormat)
+    {
+        return match($groupByFormat) {
+            'Y-m-d H:00' => 'YYYY-MM-DD HH24:00',
+            'Y-m-d 12:00' => 'YYYY-MM-DD HH12:00',
+            'Y-m-d' => 'YYYY-MM-DD',
+            default => 'YYYY-MM-DD HH24:00'
+        };
     }
 
     private function getRandomColor($seed) {

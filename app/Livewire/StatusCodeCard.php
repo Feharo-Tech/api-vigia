@@ -12,7 +12,7 @@ use Livewire\Attributes\On;
 class StatusCodeCard extends Component
 {
     public $statusCodes = [];
-    public $selectedPeriod = '30d';
+    public $selectedPeriod = '24h';
     public $availablePeriods = [
         '1h' => '1 hora',
         '3h' => '3 horas',
@@ -34,34 +34,47 @@ class StatusCodeCard extends Component
         $dateRange = $this->getDateRange();
         $apiIds = Auth::user()->visibleApis()->where('is_active', true)->pluck('id');
 
-        $query = ApiStatusCheck::whereIn('api_id', $apiIds)
+        $statusTotals = ApiStatusCheck::query()
+            ->select([
+                'status_code',
+                DB::raw('COUNT(*) as total_count')
+            ])
+            ->whereIn('api_id', $apiIds)
             ->where('created_at', '>=', $dateRange['start'])
-            ->with('api');
+            ->when(isset($dateRange['end']), fn($q) => $q->where('created_at', '<=', $dateRange['end']))
+            ->groupBy('status_code')
+            ->get()
+            ->keyBy('status_code');
 
-        if (isset($dateRange['end'])) {
-            $query->where('created_at', '<=', $dateRange['end']);
-        }
+        $statusDetails = ApiStatusCheck::query()
+            ->select([
+                'status_code',
+                'api_id',
+                DB::raw('COUNT(*) as count'),
+                DB::raw('MAX(created_at) as last_occurrence')
+            ])
+            ->whereIn('api_id', $apiIds)
+            ->where('created_at', '>=', $dateRange['start'])
+            ->when(isset($dateRange['end']), fn($q) => $q->where('created_at', '<=', $dateRange['end']))
+            ->groupBy('status_code', 'api_id')
+            ->with('api')
+            ->get()
+            ->groupBy('status_code');
 
-        $checks = $query->get();
-
-        $this->statusCodes = $checks->groupBy('status_code')
-            ->map(function ($groupedChecks, $statusCode) {
-                return [
-                    'count' => $groupedChecks->count(),
-                    'apis' => $groupedChecks->groupBy('api_id')
-                        ->map(function ($apiChecks) {
-                            $api = $apiChecks->first()->api;
-                            return [
-                                'name' => $api->name,
-                                'count' => $apiChecks->count(),
-                                'last_occurrence' => $apiChecks->max('created_at')
-                            ];
-                        })
-                        ->sortByDesc('count')
-                        ->toArray()
-                ];
-            })
-            ->toArray();
+        $this->statusCodes = $statusTotals->map(function ($total, $statusCode) use ($statusDetails) {
+            return [
+                'count' => $total->total_count,
+                'apis' => isset($statusDetails[$statusCode]) 
+                    ? $statusDetails[$statusCode]->map(function ($item) {
+                        return [
+                            'name' => $item->api->name,
+                            'count' => $item->count,
+                            'last_occurrence' => $item->last_occurrence
+                        ];
+                    })->toArray()
+                    : []
+            ];
+        })->toArray();
     }
 
     protected function getDateRange()
@@ -73,12 +86,11 @@ class StatusCodeCard extends Component
             '3h' => ['start' => $now->subHours(3)],
             '12h' => ['start' => $now->subHours(12)],
             '24h' => ['start' => $now->subHours(24)],
-            '1d' => ['start' => $now->subDay()->startOfDay(), 'end' => $now->endOfDay()],
             '3d' => ['start' => $now->subDays(3)],
             '7d' => ['start' => $now->subDays(7)],
             '15d' => ['start' => $now->subDays(15)],
             '30d' => ['start' => $now->subDays(30)],
-            default => ['start' => $now->subDays(30)],
+            default => ['start' => $now->subHours(24)],
         };
     }
 
