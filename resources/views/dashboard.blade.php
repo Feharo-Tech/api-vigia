@@ -17,7 +17,7 @@
         {{-- <livewire:uptime-card /> --}}
         {{-- <livewire:response-time-card /> --}}
         <livewire:error-rate-card />
-        {{-- <livewire:status-code-card /> --}}
+        <livewire:status-code-card />
 
         {{-- <livewire:status-history-card /> --}}
     </div>
