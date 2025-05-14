@@ -19,7 +19,7 @@
         <livewire:error-rate-card />
         <livewire:status-code-card />
 
-        <livewire:status-history-card />
+        {{-- <livewire:status-history-card /> --}}
     </div>
 
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
