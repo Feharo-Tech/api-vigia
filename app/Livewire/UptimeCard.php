@@ -10,7 +10,7 @@ use Livewire\Attributes\On;
 class UptimeCard extends Component
 {
     public $uptimeData = [];
-    public $selectedPeriod = '24h';
+    public $selectedPeriod = '30d';
     public $availablePeriods = [
         '1h' => '1 hora',
         '3h' => '3 horas',
@@ -38,23 +38,13 @@ class UptimeCard extends Component
         $dateRange = $this->getDateRange();
         
         $this->uptimeData = Api::query()
-            ->where('is_active', true)
-            ->with(['latestStatusCheck'])
-            ->withCount([
-                'statusChecks as successful_checks_count' => function($query) use ($dateRange) {
-                    $query->where('success', true)
-                        ->where('created_at', '>=', $dateRange['start']);
-                    if (isset($dateRange['end'])) {
-                        $query->where('created_at', '<=', $dateRange['end']);
-                    }
-                },
-                'statusChecks as total_checks_count' => function($query) use ($dateRange) {
-                    $query->where('created_at', '>=', $dateRange['start']);
-                    if (isset($dateRange['end'])) {
-                        $query->where('created_at', '<=', $dateRange['end']);
-                    }
+            ->with(['statusChecks' => function($query) use ($dateRange) {
+                $query->where('created_at', '>=', $dateRange['start']);
+                if (isset($dateRange['end'])) {
+                    $query->where('created_at', '<=', $dateRange['end']);
                 }
-            ])
+            }])
+            ->where('is_active', true)
             ->get()
             ->map(function($api) {
                 $totalChecks = $api->statusChecks->count();
