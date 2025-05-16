@@ -9,7 +9,7 @@
                 Uptime das APIs
             </h2>
 
-            <div class="relative ml-4 w-32">
+            <div class="relative w-24">
                 <select wire:model.live="selectedPeriod"
                     class="text-xs appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-1 px-3 pr-8 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     @foreach($availablePeriods as $value => $label)
