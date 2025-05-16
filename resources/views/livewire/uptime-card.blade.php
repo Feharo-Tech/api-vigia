@@ -43,11 +43,10 @@
                     <div class="flex justify-between text-xs text-gray-500 mt-1">
                         <span>{{ $api['checks_count'] }} verificações</span>
                         <span class="flex items-center">
-                            Última verificação:
                             @if($api['last_check'])
                                 {{ $api['last_check']->diffForHumans() }}
                             @else
-                                Nunca
+                                Não verificado
                             @endif
                             <span class="ml-2 flex items-center">
                                 @if($api['last_status'] === true)
