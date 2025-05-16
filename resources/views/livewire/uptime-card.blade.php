@@ -9,7 +9,7 @@
                 Uptime das APIs
             </h2>
 
-            <div class="relative ml-4 w-24">
+            <div class="relative w-24">
                 <select wire:model.live="selectedPeriod"
                     class="text-xs appearance-none bg-gray-50 border border-gray-300 text-gray-700 py-1 px-3 pr-8 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     @foreach($availablePeriods as $value => $label)
@@ -43,11 +43,10 @@
                     <div class="flex justify-between text-xs text-gray-500 mt-1">
                         <span>{{ $api['checks_count'] }} verificações</span>
                         <span class="flex items-center">
-                            Última verificação:
                             @if($api['last_check'])
                                 {{ $api['last_check']->diffForHumans() }}
                             @else
-                                Nunca
+                                Não verificado
                             @endif
                             <span class="ml-2 flex items-center">
                                 @if($api['last_status'] === true)
