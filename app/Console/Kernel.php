@@ -26,7 +26,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->job(new CheckApiStatusJob)
-             ->everyMinute();
+        $schedule->call(function () {
+            CheckApiStatusJob::dispatch();
+        })->everyMinute();
     }
 }
